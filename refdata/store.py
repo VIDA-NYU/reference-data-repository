@@ -142,7 +142,7 @@ class LocalStore:
                     descriptor=ds.to_dict()
                 )
                 session.add(dataset)
-        return dataset_id, ds
+        return dataset_id, ds.to_dict()
 
     def _get(self, session: SessionScope, key: str) -> Dataset:
         """Get the database object for the dataset with the given key. If
@@ -209,10 +209,7 @@ class LocalStore:
             else:
                 raise ValueError("dataset '{}' not available in local data store")
         # Return handle for the dataset.
-        return DatasetHandle(
-            descriptor=descriptor,
-            datafile=self._datafile(dataset_id)
-        )
+        return DatasetHandle(doc=descriptor, datafile=self._datafile(dataset_id))
 
     def remove(self, key: str) -> bool:
         """Remove the dataset with the given (external) identifier from the
@@ -237,6 +234,7 @@ class LocalStore:
             session.delete(dataset)
         # Delete the downloaded file from disk.
         os.unlink(self._datafile(dataset_id))
+        return True
 
     def repository(self) -> RepositoryManager:
         """Get a reference to the associated repository manager.

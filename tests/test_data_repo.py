@@ -16,8 +16,8 @@ from refdata.repo import RepositoryManager, validate
 def test_get_dataset(mock_response):
     """Test getting a dataset from the test repository."""
     repo = RepositoryManager()
-    assert repo.get('DS1').identifier == 'DS1'
-    assert repo.get('UNKNOWN') is None
+    assert repo.get(key='DS1').identifier == 'DS1'
+    assert repo.get(key='UNKNOWN') is None
 
 
 @pytest.mark.parametrize(
@@ -62,4 +62,4 @@ def test_invalid_repository_index(doc, mock_response):
 
 def test_valid_repository_index(mock_response):
     """Test validating a 'downloaded' repository index document."""
-    validate('just.a.string')
+    validate('index.json')

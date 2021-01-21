@@ -8,9 +8,47 @@
 """Unit tests for the local datastore."""
 
 import os
+import pytest
 
 from refdata.db import Dataset
+from refdata.repo import RepositoryManager, download_index
 from refdata.store import LocalStore
+
+
+@pytest.fixture
+def store(mock_response, tmpdir):
+    return LocalStore(
+        basedir=tmpdir,
+        repo=RepositoryManager(doc=download_index('index.json')),
+        auto_download=False
+    )
+
+
+def test_download_dataset(store):
+    """Test downloading datasets to the local store."""
+    dataset_id, descriptor = store.download(key='cities')
+    assert dataset_id is not None
+    assert descriptor['id'] == 'cities'
+    assert os.path.isfile(store._datafile(dataset_id))
+    # No issue downloading the datset again.
+    dataset_id, descriptor = store.download(key='cities')
+    assert dataset_id is not None
+    assert descriptor['id'] == 'cities'
+    assert os.path.isfile(store._datafile(dataset_id))
+    # Error when downloading unkown file.
+    with pytest.raises(ValueError):
+        store.download(key='unknown')
+
+
+def test_listing_dataset_in_local_store(store):
+    """Test listing the dataset in the local store."""
+    store.download(key='cities')
+    assert len(store.list()) == 1
+    store.download(key='countries')
+    datasets = [ds.identifier for ds in store.list()]
+    assert len(datasets) == 2
+    assert 'cities' in datasets
+    assert 'countries' in datasets
 
 
 def test_local_store_init(tmpdir):
@@ -50,3 +88,27 @@ def test_local_store_repo_manager(mock_response, tmpdir):
     # Hack to ensure that the manager is created only once.
     store.repository().datasets = dict()
     assert len(store.repository().find()) == 0
+
+
+def test_open_dataset(store):
+    """Test opening a downloaded dataset."""
+    store.download(key='cities')
+    assert store.open('cities').identifier == 'cities'
+    # Error when opening a dataset that has not been downloaded and is not
+    # downloaded automatically.
+    with pytest.raises(ValueError):
+        store.open('countries')
+    with pytest.raises(ValueError):
+        store.open('countries', auto_download=False)
+    # The dataset can be opened if the auto_download flag is True.
+    assert store.open('countries', auto_download=True).identifier == 'countries'
+
+
+def test_remove_dataset(store):
+    """Test deleting a datasets from the local store."""
+    store.download(key='cities')
+    # A first attempt to remove the dataset return True.
+    assert store.remove(key='cities')
+    # The second attempt returns False since the dataset no longer exists
+    # in the local store.
+    assert not store.remove(key='cities')

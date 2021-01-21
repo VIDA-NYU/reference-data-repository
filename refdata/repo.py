@@ -78,20 +78,20 @@ class RepositoryManager:
                 result.append(ds)
         return result
 
-    def get(self, id: str) -> DatasetDescriptor:
+    def get(self, key: str) -> DatasetDescriptor:
         """Get the descriptor for the dataset with the given identifier. If no
         dataset with that identifier exists the result is None.
 
         Parameters
         ----------
-        id: string
+        key: string
             Unique dataset identifier
 
         Returns
         -------
         refdata.base.DatasetDescriptor
         """
-        return self.datasets.get(id)
+        return self.datasets.get(key)
 
 
 # -- Helper Functions ---------------------------------------------------------

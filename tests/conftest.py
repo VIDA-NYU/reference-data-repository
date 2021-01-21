@@ -7,8 +7,17 @@
 
 """Fixtures for unit tests."""
 
+import json
+import os
 import pytest
 import requests
+
+import refdata.config as config
+
+
+"""Path to local directory with test files."""
+DIR = os.path.dirname(os.path.realpath(__file__))
+DATA_DIR = os.path.join(DIR, './.files')
 
 
 INDEX_JSON = {
@@ -54,15 +63,48 @@ class MockResponse:
     Adopted from the online documentation at:
     https://docs.pytest.org/en/stable/monkeypatch.html
     """
-    def __init__(self, *args, **kwargs):
-        """Nothing to intialize. Every request will return the same object."""
-        pass
+    def __init__(self, url):
+        """Keep track of the request Url to be able to load different test
+        data files.
+        """
+        self.url = url
+        self._fh = None
+
+    def __enter__(self):
+        self._fh = open(self._datafile(), 'rb')
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_traceback):
+        self._fh.close()
+
+    def _datafile(self):
+        """The datafile depends on the Url. It is expected that the Url
+        references a file in the tests/.files folder.
+        """
+        return os.path.join(DATA_DIR, self.url)
+
+    @property
+    def content(self):
+        """Raw response for file downloads."""
+        with open(self._datafile(), 'rb') as f:
+            return f.read()
+
+    def iter_content(self, chunk_size):
+        while True:
+            data = self._fh.read(chunk_size)
+            if not data:
+                break
+            yield data
 
     def json(self):
-        """Return dictionary containing the request Url and optional data. If
-        the request.
+        """If the Url is the DEFAULT_URL the test index is returned. Otherwise
+        an attempt is made to read the index data file.
         """
-        return INDEX_JSON
+        if self.url == config.DEFAULT_URL:
+            return INDEX_JSON
+        else:
+            with open(self._datafile(), 'r') as f:
+                return json.load(f)
 
     def raise_for_status(self):
         """Never raise an error for a failed requests."""

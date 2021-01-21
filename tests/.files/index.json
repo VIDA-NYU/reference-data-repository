@@ -1,0 +1,40 @@
+{
+    "datasets": [
+        {
+            "id": "cities",
+            "name": "Cities in the U.S.",
+            "description": "Names of cities in the U.S. from the Encyclopaedia Britannica.",
+            "url": "cities.tsv",
+            "webpage": "https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068",
+            "schema": [
+                {"id": "city", "name": "City", "description": "City Name", "dtype": "text"},
+                {"id": "state", "name": "State", "description": "U.S. State Name", "dtype": "text"}
+            ],
+            "format": {
+                "type": "csv",
+                "parameters": {
+                    "delim": "\t"
+                }
+            }
+        },
+        {
+            "id": "countries",
+            "name": "REST Countries",
+            "description": "Information about countries in the world available from the restcountries.eu project.",
+            "url": "countries.json",
+            "webpage": "https://restcountries.eu/",
+            "schema": [
+                {"id": "name", "name": "Name", "description": "Country name", "dtype": "text"},
+                {"id": "alpha2Code", "name": "Country Code (2-letters)", "description": "ISO 3166-1 2-letter country code", "dtype": "text"},
+                {"id": "alpha3Code", "name": "Country Code (3-letters)", "description": "ISO 3166-1 3-letter country code", "dtype": "text"},
+                {"id": "capital", "name": "Capital", "description": "Capital city", "dtype": "text"},
+                {"id": "region", "name": "Region", "description": "World region", "dtype": "text"},
+                {"id": "subregion", "name": "Sub-Region", "description": "Sub-region within the country region", "dtype": "text"}
+            ],
+            "format": {
+                "type": "json",
+                "parameters": {}
+            }
+        }
+    ]
+}
