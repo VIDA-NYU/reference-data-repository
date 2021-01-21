@@ -121,8 +121,9 @@ def test_maximal_dataset_descriptor():
     assert len(d.columns) == 2
     assert d.columns[0].identifier == 'C1'
     assert d.columns[1].identifier == 'C2'
-    assert d.format['type'] == 'csv'
-    assert d.format['parameters'] == {'delim': '\t'}
+    assert d.format.is_csv
+    assert not d.format.is_json
+    assert d.format['delim'] == '\t'
     assert d.author == 'Some One'
     assert d.compression == 'gzip'
     assert d.license == 'MIT'
@@ -137,9 +138,9 @@ def test_minimal_dataset_descriptor():
         'id': '0000',
         'url': 'mydata.download',
         'format': {
-            'type': 'csv',
+            'type': 'json',
             'parameters': {
-                'delim': '|'
+                'target': 'x'
             }
         },
         'schema': [{'id': 'C1'}]
@@ -148,8 +149,9 @@ def test_minimal_dataset_descriptor():
     assert d.url == 'mydata.download'
     assert len(d.columns) == 1
     assert d.columns[0].identifier == 'C1'
-    assert d.format['type'] == 'csv'
-    assert d.format['parameters'] == {'delim': '|'}
+    assert not d.format.is_csv
+    assert d.format.is_json
+    assert d.format['target'] == 'x'
     assert d.name == d.identifier
     assert d.author is None
     assert d.compression is None

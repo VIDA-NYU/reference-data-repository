@@ -14,6 +14,7 @@ from setuptools import setup, find_packages
 
 
 install_requires = [
+    'future',
     'pyyaml>=5.1',
     'jsonschema',
     'SQLAlchemy>=1.3.18',

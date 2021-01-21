@@ -42,6 +42,7 @@ in the repository index file that follows the format that is defined in the
 
 """
 
+from __future__ import annotations
 from typing import Dict, List, Set
 
 
@@ -204,16 +205,17 @@ class DatasetDescriptor(Descriptor):
         return self.doc.get('compression')
 
     @property
-    def format(self) -> Dict:
+    def format(self) -> FormatDescriptor:
         """Get the format specification for the dataset. Raises a KeyError if
         the mandatory format is not present in the dictionary serialization
         object.
 
         Returns
         -------
-        dict
+        refdata.base.FormatDescriptor
         """
-        return self.doc['format']
+        obj = self.doc['format']
+        return FormatDescriptor(type=obj['type'], parameters=obj['parameters'])
 
     @property
     def license(self) -> str:
@@ -266,3 +268,17 @@ class DatasetDescriptor(Descriptor):
         string
         """
         return self.doc.get('webpage')
+
+
+class FormatDescriptor(dict):
+    def __init__(self, type: str, parameters: Dict):
+        super(FormatDescriptor, self).__init__(**parameters)
+        self.format_type = type
+
+    @property
+    def is_csv(self):
+        return self.format_type == 'csv'
+
+    @property
+    def is_json(self):
+        return self.format_type == 'json'
