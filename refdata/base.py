@@ -271,14 +271,39 @@ class DatasetDescriptor(Descriptor):
 
 
 class FormatDescriptor(dict):
+    """Dataset format descriptor extends a dictionary for format parameters
+    with properties for the dataset type format.
+    """
     def __init__(self, type: str, parameters: Dict):
+        """Initialize the dataset format identifier and set the format
+        parameters.
+
+        Parameters
+        ----------
+        type: string
+            Dataset format type identifier.
+        parameters: dict
+            Dictionary for format-specific settings.
+        """
         super(FormatDescriptor, self).__init__(**parameters)
         self.format_type = type
 
     @property
-    def is_csv(self):
+    def is_csv(self) -> bool:
+        """True if the dataset is of type 'csv'.
+
+        Returns
+        -------
+        bool
+        """
         return self.format_type == 'csv'
 
     @property
-    def is_json(self):
+    def is_json(self) -> bool:
+        """True if the dataset is of type 'json'.
+
+        Returns
+        -------
+        bool
+        """
         return self.format_type == 'json'
