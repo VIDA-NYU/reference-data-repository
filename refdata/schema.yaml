@@ -1,0 +1,96 @@
+definitions:
+    RepositoryIndex:
+        type: "object"
+        description: "Full data repository index."
+        required:
+            - "datasets"
+        properties:
+            datasets:
+                type: "array"
+                description: "Descriptors for datasets in the repository."
+                items:
+                    $ref: "#/definitions/DatasetDescriptor"
+    ColumnDescriptor:
+        type: "object"
+        description: "Descriptor for a dataset column."
+        required:
+            - "id"
+        properties:
+            id:
+                type: "string"
+                description: "Unique column identifier."
+            name:
+                type: "string"
+                description: "Human-readable column name."
+            description:
+                type: "string"
+                description: "Short descriptive text for the columns."
+            dtype:
+                type: "string"
+                description: "Column (raw) data type identifier."
+                enum: ["text", "number"]
+            tags:
+                type: "array"
+                description: "List of semantic tags describing the column."
+                items:
+                    type: "string"
+    DatasetDescriptor:
+        type: "object"
+        description: "Descriptor for a dataset in the repository."
+        required:
+            - "id"
+            - "url"
+            - "schema"
+            - "format"
+        properties:
+            id:
+                type: "string"
+                description: "Unique dataset identifier."
+            name:
+                type: "string"
+                description: "Human-readable dataset name."
+            description:
+                type: "string"
+                description: "Short descriptive text for the dataset."
+            author:
+                type: "string"
+                description: "Optional dataset author/owner information."
+            license:
+                type: "string"
+                description: "Optional license information (identifier)."
+            url:
+                type: "string"
+                description: "Url fpr downloading the dataset file."
+            webpage:
+                type: "string"
+                description: "Url for web page containing additional information about the dataset."
+            compression:
+                type: "string"
+                description: "Compression format identifier."
+                enum: ["gzip"]
+            schema:
+                type: "array"
+                description: "Descriptors for columns in the dataset schema."
+                items:
+                    $ref: "#/definitions/ColumnDescriptor"
+            format:
+                $ref: "#/definitions/DatasetFormat"
+            tags:
+                type: "array"
+                description: "List of semantic tags describing the dataset."
+                items:
+                    type: "string"
+    DatasetFormat:
+        type: "object"
+        description: "Dataset format information."
+        required:
+            - "type"
+            - "parameters"
+        properties:
+            type:
+                type: "string"
+                description: "Unique format type identifier."
+                enum: ["csv", "json", "sqlite"]
+            parameters:
+                type: "object"
+                description: "Format-specific parameters for dataset loader."
