@@ -14,7 +14,7 @@ import requests
 
 from refdata.base import DatasetDescriptor
 from refdata.checksum import hash_file
-from refdata.dataset import DatasetHandle
+from refdata.store.dataset import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
 from refdata.repo import RepositoryManager
 

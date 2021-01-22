@@ -29,6 +29,22 @@ class InvalidChecksumError(RefDataError):
         super(InvalidChecksumError, self).__init__(msg)
 
 
+class InvalidFormatError(RefDataError):
+    """Error that indicates the the format specification for a dataset is
+    invalid. The error message contains more details about the cause for
+    this error.
+    """
+    def __init__(self, message: str):
+        """Initialize the error message.
+
+        Parameters
+        ----------
+        message: string
+            Detailed error message.
+        """
+        super(InvalidFormatError, self).__init__(message)
+
+
 class NotDownloadedError(RefDataError):
     """Error that is raised if an attempt is made to access a dataset has not
     yet been downloaded to the local store.
