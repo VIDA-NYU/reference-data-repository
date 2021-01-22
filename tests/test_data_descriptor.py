@@ -99,6 +99,7 @@ def test_maximal_dataset_descriptor():
         'id': '0000',
         'name': 'D1',
         'description': 'A dataset',
+        'checksum': 'ABCD1234',
         'url': 'mydata.download',
         'format': {
             'type': 'csv',
@@ -115,6 +116,7 @@ def test_maximal_dataset_descriptor():
     }
     d = DatasetDescriptor(doc)
     assert d.identifier == '0000'
+    assert d.checksum == 'ABCD1234'
     assert d.name == 'D1'
     assert d.url == 'mydata.download'
     assert d.description == 'A dataset'
@@ -136,6 +138,7 @@ def test_minimal_dataset_descriptor():
     """Test the functionality for a dataset descriptor with minimal information."""
     d = DatasetDescriptor({
         'id': '0000',
+        'checksum': 'ABCD1234',
         'url': 'mydata.download',
         'format': {
             'type': 'json',
@@ -146,6 +149,7 @@ def test_minimal_dataset_descriptor():
         'schema': [{'id': 'C1'}]
     })
     assert d.identifier == '0000'
+    assert d.checksum == 'ABCD1234'
     assert d.url == 'mydata.download'
     assert len(d.columns) == 1
     assert d.columns[0].identifier == 'C1'

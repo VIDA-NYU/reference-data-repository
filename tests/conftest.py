@@ -25,6 +25,7 @@ INDEX_JSON = {
         {
             'id': 'DS1',
             'url': 'X',
+            "checksum": "0000",
             'format': {'type': 'csv', 'parameters': {'delim': '|'}},
             'schema': [
                 {'id': 'C1'},
@@ -35,6 +36,7 @@ INDEX_JSON = {
         {
             'id': 'DS2',
             'url': 'X',
+            "checksum": "0001",
             'format': {'type': 'csv', 'parameters': {}},
             'schema': [
                 {'id': 'C1', 'tags': ['u', 'v']},
@@ -45,6 +47,7 @@ INDEX_JSON = {
         {
             'id': 'DS3',
             'url': 'X',
+            "checksum": "0002",
             'format': {'type': 'csv', 'parameters': {}},
             'schema': [
                 {'id': 'C1', 'tags': ['x']},

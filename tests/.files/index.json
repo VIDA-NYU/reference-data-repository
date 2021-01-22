@@ -5,6 +5,7 @@
             "name": "Cities in the U.S.",
             "description": "Names of cities in the U.S. from the Encyclopaedia Britannica.",
             "url": "cities.tsv",
+            "checksum": "cb0660d9ddf6fcca1f36f28ed16f6089cb85a2dd1824693b69685a4b197a933b",
             "webpage": "https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068",
             "schema": [
                 {"id": "city", "name": "City", "description": "City Name", "dtype": "text"},
@@ -22,6 +23,7 @@
             "name": "REST Countries",
             "description": "Information about countries in the world available from the restcountries.eu project.",
             "url": "countries.json",
+            "checksum": "403126a5fb62f83b2ff65fb2bd7a3e87d57c0041cc086da813134035e7b0157c",
             "webpage": "https://restcountries.eu/",
             "schema": [
                 {"id": "name", "name": "Name", "description": "Country name", "dtype": "text"},

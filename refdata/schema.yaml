@@ -40,6 +40,7 @@ definitions:
         required:
             - "id"
             - "url"
+            - "checksum"
             - "schema"
             - "format"
         properties:
@@ -52,6 +53,9 @@ definitions:
             description:
                 type: "string"
                 description: "Short descriptive text for the dataset."
+            checksum:
+                type: "string"
+                description: "Checksum (SHA-256) for the file used to verify integrity."
             author:
                 type: "string"
                 description: "Optional dataset author/owner information."

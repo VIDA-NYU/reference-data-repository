@@ -13,11 +13,13 @@ import os
 import requests
 
 from refdata.base import DatasetDescriptor
+from refdata.checksum import hash_file
 from refdata.dataset import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
 from refdata.repo import RepositoryManager
 
 import refdata.config as config
+import refdata.error as err
 
 
 class LocalStore:
@@ -131,7 +133,7 @@ class LocalStore:
                 ds_exists = True
         # Download the dataset files into the dataset target directory
         dst = self._datafile(dataset_id)
-        download_file(ds.url, dst)
+        download_file(dataset=ds, dst=dst)
         # Create entry for the downloaded dataset if it was downloaded for
         # the first time.
         if not ds_exists:
@@ -253,8 +255,10 @@ class LocalStore:
 
 # -- Helper Functions ---------------------------------------------------------
 
-def download_file(url: str, dst: str):
-    """Download data from the given Url.
+def download_file(dataset: DatasetDescriptor, dst: str):
+    """Download data file for the given dataset. Raises an error if the checksum
+    of the downloaded file does not match the value in the given dataset
+    descriptor.
 
     Parameters
     ----------
@@ -262,9 +266,16 @@ def download_file(url: str, dst: str):
         Url for downloaded resource.
     dst: string
         Path to destination file on disk.
+
+    Raises
+    ------
+    refdata.error.InvalidChecksumError
     """
-    with requests.get(url, stream=True) as r:
+    with requests.get(dataset.url, stream=True) as r:
         r.raise_for_status()
         with open(dst, 'wb') as f:
             for buf in r.iter_content(chunk_size=8192):
                 f.write(buf)
+    # Raise error if the checksum for the downloaded file is invalid.
+    if hash_file(filename=dst) != dataset.checksum:
+        raise err.InvalidChecksumError(dataset)

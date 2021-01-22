@@ -183,6 +183,17 @@ class DatasetDescriptor(Descriptor):
         return self.doc.get('author')
 
     @property
+    def checksum(self) -> str:
+        """Get the dataset checksum. Raises a KeyError if the mandatory
+        checksum is not present in the dictionary serialization object.
+
+        Returns
+        -------
+        string
+        """
+        return self.doc['checksum']
+
+    @property
     def columns(self) -> List[ColumnDescriptor]:
         """Get the list of descriptors for the columns in the dataset schema.
         Raises a KeyError if the mandatory schema information is not present
