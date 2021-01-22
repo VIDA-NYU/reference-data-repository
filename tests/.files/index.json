@@ -4,8 +4,9 @@
             "id": "cities",
             "name": "Cities in the U.S.",
             "description": "Names of cities in the U.S. from the Encyclopaedia Britannica.",
-            "url": "cities.tsv",
-            "checksum": "cb0660d9ddf6fcca1f36f28ed16f6089cb85a2dd1824693b69685a4b197a933b",
+            "url": "cities.tsv.gz",
+            "checksum": "8d4c77b84cbe8c6683bbfa9f58c8268455f820b98289b51955dcef87b1d48d60",
+            "compression": "gzip",
             "webpage": "https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068",
             "schema": [
                 {"id": "city", "name": "City", "description": "City Name", "dtype": "text"},

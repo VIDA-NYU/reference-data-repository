@@ -11,19 +11,9 @@ import os
 import pytest
 
 from refdata.db import Dataset
-from refdata.repo import RepositoryManager, download_index
 from refdata.store import LocalStore, download_file
 
 import refdata.error as err
-
-
-@pytest.fixture
-def store(mock_response, tmpdir):
-    return LocalStore(
-        basedir=tmpdir,
-        repo=RepositoryManager(doc=download_index('index.json')),
-        auto_download=False
-    )
 
 
 def test_download_dataset(store):

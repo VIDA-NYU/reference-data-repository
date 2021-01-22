@@ -59,6 +59,6 @@ class DatasetHandle(DatasetDescriptor):
         # Use the format-specific loader to get the data frame. Ensure to close
         # the opened file when done.
         try:
-            return self.loader.read(f)
+            return self.loader.read(f, columns=self.columns)
         finally:
-            f.open()
+            f.close()

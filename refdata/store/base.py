@@ -10,6 +10,7 @@
 from typing import Dict, List, Optional, Tuple
 
 import os
+import pandas as pd
 import requests
 
 from refdata.base import DatasetDescriptor
@@ -176,6 +177,23 @@ class LocalStore:
         with self.db.session() as session:
             datasets = session.query(Dataset).all()
             return [DatasetDescriptor(ds.descriptor) for ds in datasets]
+
+    def load(self, key: str, auto_download: Optional[bool] = None) -> pd.DataFrame:
+        """Shortcut to load the data frame for a downloaded dataset
+        with the given identifier.
+
+        Parameters
+        ----------
+        key: string
+            External unique dataset identifier.
+        auto_download: bool, default=None
+            Override the class global auto download flag.
+
+        Returns
+        -------
+        pd.DataFrame
+        """
+        return self.open(key=key, auto_download=auto_download).load()
 
     def open(self, key: str, auto_download: Optional[bool] = None) -> DatasetHandle:
         """Get handle for the specified dataset. If the dataset does not exist
