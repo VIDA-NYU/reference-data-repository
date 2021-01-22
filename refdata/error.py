@@ -8,7 +8,12 @@
 """Custom error classes raised by different components of the package."""
 
 
-class InvalidChecksumError(Exception):
+class RefDataError(Exception):
+    """Base class for all custom package errors."""
+    pass
+
+
+class InvalidChecksumError(RefDataError):
     """Error that is raised when the checksum for a downloaded file does not
     match the checksum that is defined in the repository index.
     """
@@ -22,3 +27,35 @@ class InvalidChecksumError(Exception):
         """
         msg = "invaid checksum for downloaded data file of dataset '{}'".format(key)
         super(InvalidChecksumError, self).__init__(msg)
+
+
+class NotDownloadedError(RefDataError):
+    """Error that is raised if an attempt is made to access a dataset has not
+    yet been downloaded to the local store.
+    """
+    def __init__(self, key: str):
+        """Initialize the error message.
+
+        Parameters
+        ----------
+        key: string
+            Unique external key for the dataset.
+        """
+        msg = "dataset '{}' has not been downloaded".format(key)
+        super(NotDownloadedError, self).__init__(msg)
+
+
+class UnknownDatasetError(RefDataError):
+    """Error that is raised if an attempt is made to access a dataset that is
+    not included in the repository index.
+    """
+    def __init__(self, key: str):
+        """Initialize the error message.
+
+        Parameters
+        ----------
+        key: string
+            Unique external key for the dataset.
+        """
+        msg = "unknown dataset '{}'".format(key)
+        super(UnknownDatasetError, self).__init__(msg)

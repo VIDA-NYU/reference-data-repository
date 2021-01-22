@@ -100,7 +100,7 @@ class LocalStore:
 
     def download(self, key: str) -> Tuple[str, Dict]:
         """Download the dataset with the given (external) identifier. If no
-        dataset with that given key exists a ValueError is raised. If the
+        dataset with that given key exists an error is raised. If the
         dataset had been downloaded before the existing data file is
         downloaded again.
 
@@ -115,11 +115,15 @@ class LocalStore:
         Returns
         -------
         string, dict
+
+        Raises
+        ------
+        refdata.error.UnknownDatasetError
         """
         # Get the dataset descriptor from the repository.
         ds = self.repository().get(key=key)
         if ds is None:
-            raise ValueError("unknown dataset '{}'".format(key))
+            raise err.UnknownDatasetError(key=key)
         # Get the internal dataset identifier if the dataset had been
         # downloaded before. If the dataset had not been downloaded an new
         # entry is created in the database.
@@ -180,7 +184,7 @@ class LocalStore:
         that the auto_download argument will override the class global one.
 
         If the dataset is not available in the local store (and not automatically
-        downloaded) a ValueError is raised.
+        downloaded) an error is raised.
 
         Parameters
         ----------
@@ -192,8 +196,12 @@ class LocalStore:
         Returns
         -------
         refdata.dataset.DatasetHandle
+
+        Raises
+        ------
+        refdata.error.NotDownloadedError
         """
-        # Get the identifier and descriptor for the dataset. Raises ValueError
+        # Get the identifier and descriptor for the dataset. Raises error
         # if dataset has not been downloaded and auto_download is False.
         dataset_id, descriptor = None, None
         with self.db.session() as session:
@@ -209,7 +217,7 @@ class LocalStore:
             if download:
                 dataset_id, descriptor = self.download(key=key)
             else:
-                raise ValueError("dataset '{}' not available in local data store")
+                raise err.NotDownloadedError(key=key)
         # Return handle for the dataset.
         return DatasetHandle(doc=descriptor, datafile=self._datafile(dataset_id))
 
@@ -278,4 +286,4 @@ def download_file(dataset: DatasetDescriptor, dst: str):
                 f.write(buf)
     # Raise error if the checksum for the downloaded file is invalid.
     if hash_file(filename=dst) != dataset.checksum:
-        raise err.InvalidChecksumError(dataset)
+        raise err.InvalidChecksumError(key=dataset.identifier)

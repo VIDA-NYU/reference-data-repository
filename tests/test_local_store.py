@@ -12,7 +12,9 @@ import pytest
 
 from refdata.db import Dataset
 from refdata.repo import RepositoryManager, download_index
-from refdata.store import LocalStore
+from refdata.store import LocalStore, download_file
+
+import refdata.error as err
 
 
 @pytest.fixture
@@ -36,8 +38,18 @@ def test_download_dataset(store):
     assert descriptor['id'] == 'cities'
     assert os.path.isfile(store._datafile(dataset_id))
     # Error when downloading unkown file.
-    with pytest.raises(ValueError):
+    with pytest.raises(err.UnknownDatasetError):
         store.download(key='unknown')
+
+
+def test_download_invalid_checksum(store, tmpdir):
+    """Test downloading a dataset with an invalid checksum."""
+    # Hack: Modify checksum value for dataset 'cities' before attempting to
+    # download it.
+    ds = store.repository().get('cities')
+    ds.doc['checksum'] = '0000'
+    with pytest.raises(err.InvalidChecksumError):
+        download_file(dataset=ds, dst=os.path.join(tmpdir, 'test.dat'))
 
 
 def test_listing_dataset_in_local_store(store):
@@ -96,9 +108,9 @@ def test_open_dataset(store):
     assert store.open('cities').identifier == 'cities'
     # Error when opening a dataset that has not been downloaded and is not
     # downloaded automatically.
-    with pytest.raises(ValueError):
+    with pytest.raises(err.NotDownloadedError):
         store.open('countries')
-    with pytest.raises(ValueError):
+    with pytest.raises(err.NotDownloadedError):
         store.open('countries', auto_download=False)
     # The dataset can be opened if the auto_download flag is True.
     assert store.open('countries', auto_download=True).identifier == 'countries'
