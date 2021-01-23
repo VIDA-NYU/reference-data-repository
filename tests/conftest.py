@@ -59,6 +59,13 @@ INDEX_JSON = {
 }
 
 
+@pytest.fixture
+def countries_file():
+    """Get path to the `countries.json` file for tests."""
+    basedir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(basedir, './.files/countries.json')
+
+
 # -- Helper class and fixture for mocked requests -----------------------------
 
 class MockResponse:
