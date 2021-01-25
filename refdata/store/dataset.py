@@ -5,7 +5,7 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
-from typing import Dict
+from typing import Dict, List
 
 import gzip
 import pandas as pd
@@ -18,7 +18,7 @@ import refdata.error as err
 
 class DatasetHandle(DatasetDescriptor):
     """Handle for a dataset in the local data store. Provides the functionality
-    to load the dataset as a pandas data frame.
+    to read data in different formats from the downloaded data file.
     """
     def __init__(self, doc: Dict, datafile: str):
         """Initialize the descriptor information and the path to the downloaded
@@ -37,18 +37,26 @@ class DatasetHandle(DatasetDescriptor):
         # Create the format-dependent instance of the dataset loader.
         format = self.format
         if format.is_csv:
-            self.loader = CSVLoader(format)
+            self.loader = CSVLoader(format=format, schema=[c.identifier for c in self.columns])
         elif format.is_json:
             self.loader = JsonLoader(format)
         else:
             raise err.InvalidFormatError("unknown format '{}'".format(format.format_type))
 
-    def load(self) -> pd.DataFrame:
-        """Load the dataset as a pandas data frame.
+    def load(self, columns: List[str]) -> List[List]:
+        """Load data for the specified columns from the downloaded dataset
+        file. The list of columns is expected to contain only identifier for
+        columns in the schema that is defined in the dataset descriptor.
+
+        Parameters
+        ----------
+        columns: list of string
+            Column identifier defining the content and the schema of the
+            returned data.
 
         Returns
         -------
-        pd.DataFrame
+        list of list
         """
         # Open the file depending on whether it is compressed or not. By now,
         # we only support gzip compression.
@@ -59,6 +67,6 @@ class DatasetHandle(DatasetDescriptor):
         # Use the format-specific loader to get the data frame. Ensure to close
         # the opened file when done.
         try:
-            return self.loader.read(f, columns=self.columns)
+            return self.loader.read(f, columns=columns)
         finally:
             f.close()

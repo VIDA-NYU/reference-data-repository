@@ -43,7 +43,7 @@ in the repository index file that follows the format that is defined in the
 """
 
 from __future__ import annotations
-from typing import Dict, List, Set
+from typing import Dict, List, Optional, Set
 
 
 class Descriptor:
@@ -285,7 +285,7 @@ class FormatDescriptor(dict):
     """Dataset format descriptor extends a dictionary for format parameters
     with properties for the dataset type format.
     """
-    def __init__(self, type: str, parameters: Dict):
+    def __init__(self, type: str, parameters: Optional[Dict] = None):
         """Initialize the dataset format identifier and set the format
         parameters.
 
@@ -293,9 +293,10 @@ class FormatDescriptor(dict):
         ----------
         type: string
             Dataset format type identifier.
-        parameters: dict
+        parameters: dict, default=None
             Dictionary for format-specific settings.
         """
+        parameters = parameters if parameters is not None else dict()
         super(FormatDescriptor, self).__init__(**parameters)
         self.format_type = type
 

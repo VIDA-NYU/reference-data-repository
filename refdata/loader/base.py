@@ -5,37 +5,43 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
-"""Interface for format-specific dataset loaders."""
+"""Interface for format-specific dataset loader. For each data format that is
+supported by the Reference Data Repository a format-specific implementation of
+the loader interface needs to be provided.
+"""
 
 from abc import ABCMeta, abstractmethod
 from typing import IO, List
 
-import pandas as pd
-
-from refdata.base import ColumnDescriptor
-
 
 class DatasetLoader(metaclass=ABCMeta):
-    """The dataset loader reads a given opened file and returns a pandas data
-    frame containing the dataset in the file.
+    """Interface for the dataset loader that are used to read data from
+    downloaded data files. Each data format that is supported by the repository
+    provides their own format-specific implementation of the data loader. The
+    loader is associated with, and instantiated in, the handle for a dataset.
     """
     @abstractmethod
-    def read(self, file: IO, columns: List[ColumnDescriptor]) -> pd.DataFrame:
-        """Read data from a given file handle and return a data frame. The
-        schema of the returned data frame follows the given column information.
-        That is, the column names in the data frame are the identifier of the
-        column descriptors and the order of columns is the same as in the given
-        list.
+    def read(self, file: IO, columns: List[str]) -> List[List]:
+        """Read data from a given file handle. Returns a list of data rows. The
+        schema and content of the returned rows is defined by the given list
+        of column identifier.
+
+        The file handle represents the opened data file for a dataset that has
+        been downloaded from the repository to the local data store. The list
+        of columns contains identifier for columns that are defined in the
+        dataset descriptor. The returned rows contain only those columns that
+        are defined in the given schema.
 
         Parameters
         ----------
         file: file object
             Open file object.
-        columns: list of refdata.base.ColumnDescriptor
-            Columns descriptors defining the schema of the returned data frame.
+        columns: list of string
+            Column identifier defining the content and the schema of the
+            returned data.
 
         Returns
         -------
-        pd.DataFrame
+        list of lists
         """
         raise NotImplementedError()  # pragma: no cover
