@@ -7,7 +7,7 @@
 
 """Manager for downloaded dataset files on the local file system."""
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import os
 import pandas as pd
@@ -99,6 +99,30 @@ class LocalStore:
         """
         return os.path.join(self.basedir, '{}.{}'.format(dataset_id, 'dat'))
 
+    def distinct(
+        self, key: str, columns: Optional[Union[str, List[str]]] = None,
+        auto_download: Optional[bool] = None
+    ) -> Set:
+        """Shortcut to get the set of distinct values in one or more columns
+        for a downloaded dataset with the given identifier.
+
+        Parameters
+        ----------
+        key: string
+            External unique dataset identifier.
+        columns: list of string, default=None
+            Column identifier defining the content and returned distinct value
+            set.
+        auto_download: bool, default=None
+            Override the class global auto download flag.
+
+        Returns
+        -------
+        set
+        """
+        dataset = self.open(key=key, auto_download=auto_download)
+        return dataset.distinct(columns=columns)
+
     def download(self, key: str) -> Tuple[str, Dict]:
         """Download the dataset with the given (external) identifier. If no
         dataset with that given key exists an error is raised. If the
@@ -179,11 +203,14 @@ class LocalStore:
             return [DatasetDescriptor(ds.descriptor) for ds in datasets]
 
     def load(
-        self, key: str, columns: Optional[str] = None,
+        self, key: str, columns: Optional[List[str]] = None,
         auto_download: Optional[bool] = None
     ) -> pd.DataFrame:
-        """Shortcut to load the data frame for a downloaded dataset
-        with the given identifier.
+        """Load the dataset with the given identifier as a pandas data frame.
+
+        This is a shortcut to open the dataset with the given identifier (and
+        optionally download it first) and then reading data from the downloaded
+        file into a data frame.
 
         Parameters
         ----------
@@ -200,7 +227,39 @@ class LocalStore:
         pd.DataFrame
         """
         dataset = self.open(key=key, auto_download=auto_download)
-        return dataset.load_df(columns=columns)
+        return dataset.data_frame(columns=columns)
+
+    def mapping(
+        self, key: str, lhs: Union[str, List[str]], rhs: Union[str, List[str]],
+        ignore_equal: Optional[bool] = True, auto_download: Optional[bool] = None
+    ) -> Dict:
+        """Generate a mapping from values in dataset rows.
+
+        This is a shortcut to open the dataset with the given identifier (and
+        optionally download it first) and the generae a mapping from the
+        downloaded dataset for the given columns.
+
+        Parameters
+        ----------
+        key: string
+            External unique dataset identifier.
+        lhs: string or list of string
+            Columns defining the source of values for the left-hand side of the
+            mapping.
+        rhs: string or list of string
+            Columns defining the source of values for the right-hand side of the
+            mapping.
+        ignore_equal: bool, default=True
+            Exclude mappings from a value to itself from the created mapping.
+        auto_download: bool, default=None
+            Override the class global auto download flag.
+
+        Returns
+        -------
+        set
+        """
+        dataset = self.open(key=key, auto_download=auto_download)
+        return dataset.mapping(lhs=lhs, rhs=rhs, ignore_equal=ignore_equal)
 
     def open(self, key: str, auto_download: Optional[bool] = None) -> DatasetHandle:
         """Get handle for the specified dataset. If the dataset does not exist

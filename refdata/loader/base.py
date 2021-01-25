@@ -13,6 +13,8 @@ the loader interface needs to be provided.
 from abc import ABCMeta, abstractmethod
 from typing import IO, List
 
+from refdata.loader.consumer import DataConsumer
+
 
 class DatasetLoader(metaclass=ABCMeta):
     """Interface for the dataset loader that are used to read data from
@@ -21,17 +23,19 @@ class DatasetLoader(metaclass=ABCMeta):
     loader is associated with, and instantiated in, the handle for a dataset.
     """
     @abstractmethod
-    def read(self, file: IO, columns: List[str]) -> List[List]:
+    def read(self, file: IO, columns: List[str], consumer: DataConsumer) -> DataConsumer:
         """Read data from a given file handle.
 
-        Returns a list of data rows. The schema and content of the returned
-        rows is defined by the given list of column identifier.
+        The schema and content of the read rows is defined by the given list of
+        column identifier. The rows are passed on to a given consumer.
 
         The file handle represents the opened data file for a dataset that has
         been downloaded from the repository to the local data store. The list
         of columns contains identifier for columns that are defined in the
-        dataset descriptor. The returned rows contain only those columns that
-        are defined in the given schema.
+        dataset descriptor. The read rows contain only those columns that are
+        defined in the given list.
+
+        Returns a reference to the given data consumer.
 
         Parameters
         ----------
@@ -40,9 +44,11 @@ class DatasetLoader(metaclass=ABCMeta):
         columns: list of string
             Column identifier defining the content and the schema of the
             returned data.
+        consumer: refdata.loader.consumer.DataConsumer
+            Consumer for data rows that are being read.
 
         Returns
         -------
-        list of lists
+        refdata.loader.consumer.DataConsumer
         """
         raise NotImplementedError()  # pragma: no cover

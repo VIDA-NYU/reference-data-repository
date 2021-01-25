@@ -12,6 +12,7 @@ from typing import IO, List
 import csv
 
 from refdata.loader.base import DatasetLoader
+from refdata.loader.consumer import DataConsumer
 from refdata.base import FormatDescriptor
 
 
@@ -31,9 +32,9 @@ class CSVLoader(DatasetLoader):
 
         Parameters
         ----------
-        format: refdata.base.FormatDescriptor
+        parameters: refdata.base.FormatDescriptor
             Dataset format specification.
-        parameters: list of string
+        schema: list of string
             Order of columns in the data file. This is a list of column
             identifier as defined in the dataset descriptor.
         """
@@ -45,15 +46,18 @@ class CSVLoader(DatasetLoader):
         # schema (rows) in the data file.
         self.col_map = {name: index for index, name in enumerate(schema)}
 
-    def read(self, file: IO, columns: List[str]) -> List[List]:
-        """Read the data from the given file handle. The returned rows will
-        contain only those values for the columns that are contained in the
-        given column list.
+    def read(self, file: IO, columns: List[str], consumer: DataConsumer) -> DataConsumer:
+        """Read data from the given file handle for a donwloaded data file that
+        adheres to the csv format definition for this data loader instance.
 
-        The given list of column identifier is expected to be a subset (or equal)
-        of the list of column identifier that were provided as the dataset
-        schema when the reader was instantiated. A KeyError is raised if the
-        given list contains values that are not in the defined dataset schema.
+        The rows that are passed on to the given consumer will contain only
+        those values for the columns that are contained in the given column
+        list. The list of column identifier is expected to be a subset of the
+        list of column identifier that were provided as the dataset schema when
+        the reader was instantiated.
+
+        A KeyError is raised if the given column list contains values that are
+        not in the defined dataset schema.
 
         Parameters
         ----------
@@ -61,10 +65,12 @@ class CSVLoader(DatasetLoader):
             Open file object.
         columns: list of string
             Identifier of columns that are contained in the output.
+        consumer: refdata.loader.consumer.DataConsumer
+            Consumer for data rows that are being read.
 
         Returns
         -------
-        list of list
+        refdata.loader.consumer.DataConsumer
         """
         reader = csv.reader(file, delimiter=self.delim)
         # Skip the first row the it contains the dataset header.
@@ -74,7 +80,6 @@ class CSVLoader(DatasetLoader):
         cols = [self.col_map[name] for name in columns]
         # Read rows in the data file and extract the values for the columns
         # that are requested to be in the output.
-        data = list()
         for row in reader:
-            data.append([row[i] for i in cols])
-        return data
+            consumer.consume([row[i] for i in cols])
+        return consumer

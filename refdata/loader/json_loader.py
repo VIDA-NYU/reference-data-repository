@@ -12,6 +12,7 @@ from typing import Any, Dict, IO, List
 import json
 
 from refdata.base import FormatDescriptor
+from refdata.loader.consumer import DataConsumer
 from refdata.loader.base import DatasetLoader
 
 
@@ -49,10 +50,10 @@ class JsonLoader(DatasetLoader):
         # the source path is expected to be the column identifier.
         self.source_map = {s['id']: s['path'] for s in parameters.get('sources', dict())}
 
-    def read(self, file: IO, columns: List[str]) -> List[List]:
+    def read(self, file: IO, columns: List[str], consumer: DataConsumer) -> DataConsumer:
         """Read dataset rows from a given file handle.
 
-        Assumes that the file contains a Json object. This methof first extracts
+        Assumes that the file contains a Json object. This method first extracts
         the list of dataset row objects from the Json object in the file. It
         then creates a dataset row from each object based on the source path for
         each column in the given column list.
@@ -67,6 +68,8 @@ class JsonLoader(DatasetLoader):
         columns: list of string
             Column identifier defining the content and the schema of the
             returned data.
+        consumer: refdata.loader.consumer.DataConsumer
+            Consumer for data rows that are being read.
 
         Returns
         -------
@@ -79,10 +82,9 @@ class JsonLoader(DatasetLoader):
         sources = list()
         for col in columns:
             sources.append(JQuery(self.source_map.get(col, col)))
-        data = list()
         for doc in self.target.find(json.load(file)):
-            data.append([q.find(doc) for q in sources])
-        return data
+            consumer.consume([q.find(doc) for q in sources])
+        return consumer
 
 
 # -- Helper Functions ---------------------------------------------------------
@@ -106,7 +108,7 @@ class JQuery:
 
     def find(self, doc: Dict[str, Any]) -> Any:
         """Get the element at the query path in the given nested dictionary.
-        
+
         Returns None if the query path does not identify an element in the
         given dictionary.
 
