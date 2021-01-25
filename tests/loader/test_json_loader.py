@@ -30,9 +30,18 @@ DESCRIPTOR = {
 
 
 @pytest.mark.parametrize(
-    'format,first_row',
+    'parameters,columns,first_row',
     [
-        ({"type": "json", "parameters": {}}, ['Afghanistan', 'AF', 'AFG']),
+        (
+            {"type": "json", "parameters": {}},
+            ['name', 'alpha2Code', 'alpha3Code'],
+            ['Afghanistan', 'AF', 'AFG']
+        ),
+        (
+            {"type": "json", "parameters": {}},
+            ['alpha2Code', 'name', 'alpha3Code'],
+            ['AF', 'Afghanistan', 'AFG']
+        ),
         (
             {
                 "type": "json",
@@ -42,23 +51,24 @@ DESCRIPTOR = {
                     {'id': 'alpha3Code', 'path': 'capital'}
                 ]}
             },
+            ['name', 'alpha2Code', 'alpha3Code'],
             ['AF', 'AFG', 'Kabul']
         )
     ]
 )
-def test_json_loader(format, first_row, countries_file, mock_response):
+def test_json_loader(parameters, columns, first_row, countries_file, mock_response):
     descriptor = dict(DESCRIPTOR)
-    descriptor['format'] = format
-    ds = DatasetHandle(doc=descriptor, datafile=countries_file)
-    df = ds.load()
-    assert df.shape == (2, 3)
-    assert list(df.columns) == ['name', 'alpha2Code', 'alpha3Code']
-    assert list(df.iloc[0]) == first_row
+    descriptor['format'] = parameters
+    dataset = DatasetHandle(doc=descriptor, datafile=countries_file)
+    data = dataset.load(columns=columns)
+    assert len(data) == 2
+    assert data[0] == first_row
 
 
 # -- JQuery -------------------------------------------------------------------
 
-"""Input document for JQuery tests."""
+# Input document for JQuery tests.
+
 DOC = {
     'a': {
         'b': {

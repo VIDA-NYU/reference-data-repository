@@ -178,7 +178,10 @@ class LocalStore:
             datasets = session.query(Dataset).all()
             return [DatasetDescriptor(ds.descriptor) for ds in datasets]
 
-    def load(self, key: str, auto_download: Optional[bool] = None) -> pd.DataFrame:
+    def load(
+        self, key: str, columns: Optional[str] = None,
+        auto_download: Optional[bool] = None
+    ) -> pd.DataFrame:
         """Shortcut to load the data frame for a downloaded dataset
         with the given identifier.
 
@@ -186,6 +189,9 @@ class LocalStore:
         ----------
         key: string
             External unique dataset identifier.
+        columns: list of string, default=None
+            Column identifier defining the content and the schema of the
+            returned data frame.
         auto_download: bool, default=None
             Override the class global auto download flag.
 
@@ -193,7 +199,8 @@ class LocalStore:
         -------
         pd.DataFrame
         """
-        return self.open(key=key, auto_download=auto_download).load()
+        dataset = self.open(key=key, auto_download=auto_download)
+        return dataset.load_df(columns=columns)
 
     def open(self, key: str, auto_download: Optional[bool] = None) -> DatasetHandle:
         """Get handle for the specified dataset. If the dataset does not exist

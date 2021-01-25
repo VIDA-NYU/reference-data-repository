@@ -5,12 +5,13 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
+"""Loader implementation for datasets that are given in Json format."""
+
 from typing import Any, Dict, IO, List
 
 import json
-import pandas as pd
 
-from refdata.base import ColumnDescriptor, FormatDescriptor
+from refdata.base import FormatDescriptor
 from refdata.loader.base import DatasetLoader
 
 
@@ -32,52 +33,56 @@ class JsonLoader(DatasetLoader):
     - sources (list): List of {'id', 'path'}-pairs defining the query path
       extract cell values for individual columns.
     """
-    def __init__(self, format: FormatDescriptor):
+    def __init__(self, parameters: FormatDescriptor):
         """Initialize the format settings.
 
         Parameters
         ----------
-        format: refdata.base.FormatDescriptor
+        parameters: refdata.base.FormatDescriptor
             Dataset format specification.
         """
         # Set the arget query to extract the dataset rows from the document.
-        self.target = JQuery(format.get('target', ''))
+        self.target = JQuery(parameters.get('target', ''))
         # Create mapping of column identifier to their source path for the
         # columns that have a source path that is different from thier
         # identifier. Columns fow which no entry exists in the 'sources' list
         # the source path is expected to be the column identifier.
-        self.source_map = {s['id']: s['path'] for s in format.get('sources', dict())}
+        self.source_map = {s['id']: s['path'] for s in parameters.get('sources', dict())}
 
-    def read(self, file: IO, columns: List[ColumnDescriptor]) -> pd.DataFrame:
-        """Read Json element from the given file handle. Then extract dataset
-        rows from the list of objects identfied by the data target path that
+    def read(self, file: IO, columns: List[str]) -> List[List]:
+        """Read dataset rows from a given file handle.
+
+        Assumes that the file contains a Json object. This methof first extracts
+        the list of dataset row objects from the Json object in the file. It
+        then creates a dataset row from each object based on the source path for
+        each column in the given column list.
+
+        If no source path was list of objects identfied by the data target path that
         was defined in the dataset format.
 
         Parameters
         ----------
         file: file object
             Open file object.
-        columns: list of refdata.base.ColumnDescriptor
-            Columns descriptors defining the schema of the returned data frame.
+        columns: list of string
+            Column identifier defining the content and the schema of the
+            returned data.
 
         Returns
         -------
-        pd.DataFrame
+        list of list
         """
-        # Create the list of column names for the resulting data frame as well
-        # a the source queries for each column in the dataset schema.
-        names = list()
+        # Create the list of source queries for each column in the resulting
+        # dataset rows. Use the column to source mapping that was created from
+        # the format parameters when the object was instantiated. By default,
+        # the column identifier is used as the query path.
         sources = list()
         for col in columns:
-            col_id = col.identifier
-            names.append(col_id)
-            # Source query. By default, the column identifier is used as the
-            # query path.
-            sources.append(JQuery(self.source_map.get(col_id, col_id)))
+            sources.append(JQuery(self.source_map.get(col, col)))
         data = list()
         for doc in self.target.find(json.load(file)):
             data.append([q.find(doc) for q in sources])
-        return pd.DataFrame(data=data, columns=names)
+        return data
 
 
 # -- Helper Functions ---------------------------------------------------------
@@ -99,8 +104,9 @@ class JQuery:
         # Ensure that the query path is an empty list if the path is empty.
         self.path = path.split('/') if path else []
 
-    def find(self, doc: Dict) -> Any:
+    def find(self, doc: Dict[str, Any]) -> Any:
         """Get the element at the query path in the given nested dictionary.
+        
         Returns None if the query path does not identify an element in the
         given dictionary.
 
@@ -117,7 +123,7 @@ class JQuery:
         # query path.
         depth = 0
         while depth < len(self.path) and isinstance(doc, dict):
-            doc = doc.get(self.path[depth])
+            doc = doc.get(self.path[depth])  # type: ignore
             depth += 1
         # The result depends on whether we reaced the end of the path (depth
         # equals length of the query path) or encountered an element in the

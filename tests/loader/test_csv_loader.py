@@ -24,8 +24,8 @@ from refdata.loader.csv_loader import CSVLoader
 )
 def test_csv_loader(file, header):
     """Test loading files with and without column header."""
-    format = FormatDescriptor('csv', {'header': header})
-    loader = CSVLoader(format, schema=['c1', 'c2', 'c3'])
+    parameters = FormatDescriptor('csv', {'header': header})
+    loader = CSVLoader(parameters, schema=['c1', 'c2', 'c3'])
     data = loader.read(file=file, columns=['c1', 'c2', 'c3'])
     assert len(data) == 1
     assert data[0] == ['alice', 'bob', 'claire']
@@ -33,7 +33,7 @@ def test_csv_loader(file, header):
 
 def test_column_order():
     """Test read data from a subset of columns in different order."""
-    loader = CSVLoader(format=FormatDescriptor('csv'), schema=['c1', 'c2', 'c3'])
+    loader = CSVLoader(parameters=FormatDescriptor('csv'), schema=['c1', 'c2', 'c3'])
     f = StringIO('\n'.join(['x1,x2,x3', 'alice,bob,claire']))
     data = loader.read(f, columns=['c3', 'c1'])
     assert len(data) == 1

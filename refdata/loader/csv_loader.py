@@ -25,7 +25,7 @@ class CSVLoader(DatasetLoader):
 
     TODO: add more settings, based on csv reader parameters.
     """
-    def __init__(self, format: FormatDescriptor, schema: List[str]):
+    def __init__(self, parameters: FormatDescriptor, schema: List[str]):
         """Initialize the format settings and the order of columns in the
         data file.
 
@@ -33,14 +33,14 @@ class CSVLoader(DatasetLoader):
         ----------
         format: refdata.base.FormatDescriptor
             Dataset format specification.
-        schema: list of string
+        parameters: list of string
             Order of columns in the data file. This is a list of column
             identifier as defined in the dataset descriptor.
         """
         # Set header information and the delimiter. By default, files are
         # expected to contain header rows and use ',' as the delimiter.
-        self.header = format.get('header', True)
-        self.delim = format.get('delim', ',')
+        self.header = parameters.get('header', True)
+        self.delim = parameters.get('delim', ',')
         # Create a mapping of column identifer to thier index position in the
         # schema (rows) in the data file.
         self.col_map = {name: index for index, name in enumerate(schema)}

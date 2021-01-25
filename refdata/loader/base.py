@@ -22,9 +22,10 @@ class DatasetLoader(metaclass=ABCMeta):
     """
     @abstractmethod
     def read(self, file: IO, columns: List[str]) -> List[List]:
-        """Read data from a given file handle. Returns a list of data rows. The
-        schema and content of the returned rows is defined by the given list
-        of column identifier.
+        """Read data from a given file handle.
+
+        Returns a list of data rows. The schema and content of the returned
+        rows is defined by the given list of column identifier.
 
         The file handle represents the opened data file for a dataset that has
         been downloaded from the repository to the local data store. The list

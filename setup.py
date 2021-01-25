@@ -30,7 +30,13 @@ tests_require = [
 ]
 
 
-dev_require = ['flake8', 'python-language-server'] + tests_require
+dev_require = [
+    'flake8',
+    'python-language-server',
+    'mypy',
+    'pylint',
+    'pydocstyle'
+]
 
 
 extras_require = {
@@ -43,7 +49,7 @@ extras_require = {
         'nbsphinx-link'
     ],
     'tests': tests_require,
-    'dev': dev_require
+    'dev': dev_require + tests_require
 }
 
 

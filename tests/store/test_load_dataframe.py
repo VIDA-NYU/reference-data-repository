@@ -13,3 +13,6 @@ def test_load_cities(store):
     df = store.load(key='cities', auto_download=True)
     assert df.shape == (7, 2)
     assert list(df.columns) == ['city', 'state']
+    df = store.load(key='cities', columns=['city'])
+    assert df.shape == (7, 1)
+    assert list(df.columns) == ['city']
