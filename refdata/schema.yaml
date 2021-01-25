@@ -2,14 +2,16 @@ definitions:
     RepositoryIndex:
         type: "object"
         description: "Full data repository index."
-        required:
-            - "datasets"
         properties:
             datasets:
                 type: "array"
                 description: "Descriptors for datasets in the repository."
                 items:
                     $ref: "#/definitions/DatasetDescriptor"
+            repositories:
+                type: "array"
+                items:
+                    type: "string"
     ColumnDescriptor:
         type: "object"
         description: "Descriptor for a dataset column."

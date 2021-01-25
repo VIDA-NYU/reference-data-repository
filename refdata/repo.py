@@ -46,6 +46,12 @@ class RepositoryManager:
         for obj in doc.get('datasets', list()):
             ds = DatasetDescriptor(obj)
             self.datasets[ds.identifier] = ds
+        # Read additional repositories that may be specified in the main
+        # document.
+        for url in doc.get('repositories', list()):
+            for obj in download_index(url=url).get('datasets', list()):
+                ds = DatasetDescriptor(obj)
+                self.datasets[ds.identifier] = ds
 
     def find(self, filter: Optional[Union[str, List[str], Set[str]]] = None) -> List[DatasetDescriptor]:
         """Query the dataset index. The filter is a single tag or a list of

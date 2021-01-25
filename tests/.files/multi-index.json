@@ -1,0 +1,23 @@
+{
+    "datasets": [
+        {
+            "id": "us_cities",
+            "url": "cities.tsv.gz",
+            "checksum": "8d4c77b84cbe8c6683bbfa9f58c8268455f820b98289b51955dcef87b1d48d60",
+            "compression": "gzip",
+            "schema": [
+                {"id": "city", "name": "City", "description": "City Name", "dtype": "text"},
+                {"id": "state", "name": "State", "description": "U.S. State Name", "dtype": "text"}
+            ],
+            "format": {
+                "type": "csv",
+                "parameters": {
+                    "delim": "\t"
+                }
+            }
+        }
+    ],
+    "repositories": [
+        "index.json"
+    ]
+}
