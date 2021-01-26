@@ -121,7 +121,7 @@ def download_index(url: str) -> Dict:
 
 """Create schema validator for the repository index file."""
 schemafile = os.path.abspath(os.path.join(__file__, 'schema.yaml'))
-schema = yaml.load(pkg_resources.open_text(__package__, 'schema.yaml'), Loader=yaml.FullLoader)
+schema = yaml.safe_load(pkg_resources.open_text(__package__, 'schema.yaml'))
 resolver = RefResolver(schemafile, schema)
 
 
