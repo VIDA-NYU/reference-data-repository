@@ -2,6 +2,12 @@
 Reference Data Repository
 =========================
 
+.. image:: https://img.shields.io/badge/License-MIT-yellow.svg
+    :target: https://github.com/VIDA-NYU/reference-data-repository/blob/master/LICENSE
+
+
+.. image:: https://github.com/VIDA-NYU/reference-data-repository/workflows/build/badge.svg
+    :target: https://github.com/VIDA-NYU/reference-data-repository/actions?query=workflow%3A%22build%22
 
 
 

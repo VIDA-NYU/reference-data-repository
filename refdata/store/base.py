@@ -34,7 +34,7 @@ class LocalStore:
     each downloaded dataset is maintained in a separate subfolder.
     """
     def __init__(
-        self, basedir: Optional[str], repo: Optional[RepositoryManager] = None,
+        self, basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
         auto_download: Optional[bool] = None, connect_url: Optional[str] = None
     ):
         """Initialize the base directory on the file system where downloaded
