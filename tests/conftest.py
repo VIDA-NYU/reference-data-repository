@@ -17,7 +17,7 @@ import refdata.config as config
 
 """Path to local directory with test files."""
 DIR = os.path.dirname(os.path.realpath(__file__))
-DATA_DIR = os.path.join(DIR, './.files')
+DATA_DIR = os.path.join(DIR, '.files')
 
 
 INDEX_JSON = {
@@ -63,14 +63,14 @@ INDEX_JSON = {
 def countries_file():
     """Get path to the `countries.json` file for tests."""
     basedir = os.path.dirname(os.path.realpath(__file__))
-    return os.path.join(basedir, './.files/countries.json')
+    return os.path.join(basedir, '.files', 'countries.json')
 
 
 @pytest.fixture
 def index_file():
     """Get path to the default repository index file."""
     basedir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
-    return os.path.join(basedir, './.files/index.json')
+    return os.path.join(basedir, '.files', 'index.json')
 
 
 # -- Helper class and fixture for mocked requests -----------------------------
