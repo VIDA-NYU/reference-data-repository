@@ -62,3 +62,39 @@ The full schema for the data repository index content is defined in `schema.yaml
 Local Data Repository
 ---------------------
 Users maintain copies of the datasets for local access. By default, datasets are stored in a subfolder `.refdata` in the users home directory.
+
+
+Getting Started
+===============
+
+Install the package using `pip` from the GitHub repository:
+
+.. code-block:: bash
+
+    pip install git+git://github.com:VIDA-NYU/reference-data-repository.git
+
+
+This repository contains an `example notebook <https://github.com/VIDA-NYU/reference-data-repository/blob/master/docs/examples/Usage%20Example.ipynb>`_ that demonstrates the basic features of the package.
+
+The package also includes a simple command line interface `refdata` that can be used to list contents of the repository index and to interact with the local data store.
+
+.. code-block:: console
+
+    Usage: refdata [OPTIONS] COMMAND [ARGS]...
+
+      Command line interface for the Reference Data Repository.
+
+    Options:
+      --help  Show this message and exit.
+
+    Commands:
+      checksum  Print file checksum.
+      index     Data Repository Index.
+          list      List repository index content.
+          show      Show dataset descriptor from repository index.
+          validate  Validate repository index file.
+      store     Local Data Store.
+          download  List local store content.
+          list      List local store content.
+          remove    Remove dataset from local store.
+          show      Show descriptor for downloaded dataset.
