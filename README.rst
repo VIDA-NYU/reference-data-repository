@@ -10,6 +10,9 @@ Reference Data Repository
     :target: https://github.com/VIDA-NYU/reference-data-repository/actions?query=workflow%3A%22build%22
 
 
+.. image:: https://codecov.io/gh/VIDA-NYU/reference-data-repository/branch/master/graph/badge.svg
+    :target: https://codecov.io/gh/VIDA-NYU/reference-data-repository
+
 
 About
 =====
