@@ -9,8 +9,10 @@
 
 import click
 
-from refdata.cli.util import read_index
 from refdata.repo import RepositoryManager
+from refdata.store.base import LocalStore
+
+import refdata.cli.util as util
 
 
 @click.group()
@@ -21,21 +23,40 @@ def cli_store():
 
 # -- Commands -----------------------------------------------------------------
 
-@cli_store.command(name='list')
+@cli_store.command(name='download')
+@click.option('-b', '--basedir', required=False, help='Local store directory')
+@click.option('-d', '--db', required=False, help='Database connect URL')
 @click.option('-i', '--index', required=False, help='Repository index file')
-def list_repository(index):
-    """List repository content."""
+@click.argument('key')
+def download_dataset(basedir, db, index, key):
+    """List local store content."""
     # Read the index of given.
-    doc = None
-    if index is not None:
-        doc = read_index(index)
-    datasets = RepositoryManager(doc=doc).find()
-    # Compute max. length for dataset identifier, name and description.
-    id_len = max([len(d.identifier) for d in datasets] + [10])
-    name_len = max([len(d.name) for d in datasets] + [4])
-    desc_len = max([len(d.description) for d in datasets if d.description is not None] + [11])
-    template = '{:>' + str(id_len) + '} | {:<' + str(name_len) + '} | {:<' + str(desc_len) + '}'
-    click.echo(template.format('Identifier', 'Name', 'Description'))
-    click.echo(template.format('-' * id_len, '-' * name_len, '-' * desc_len))
-    for dataset in sorted(datasets, key=lambda d: d.name):
-        click.echo(template.format(dataset.identifier, dataset.name, dataset.description))
+    doc = util.read_index(index) if index is not None else None
+    store = LocalStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    store.download(key)
+
+
+@cli_store.command(name='list')
+@click.option('-b', '--basedir', required=False, help='Local store directory')
+@click.option('-d', '--db', required=False, help='Database connect URL')
+@click.option('-i', '--index', required=False, help='Repository index file')
+def list_datasets(basedir, db, index):
+    """List local store content."""
+    # Read the index of given.
+    doc = util.read_index(index) if index is not None else None
+    store = LocalStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    util.print_datasets(store.list())
+
+
+@cli_store.command(name='show')
+@click.option('-b', '--basedir', required=False, help='Local store directory')
+@click.option('-d', '--db', required=False, help='Database connect URL')
+@click.option('-i', '--index', required=False, help='Repository index file')
+@click.option('-r', '--raw', is_flag=True, default=False, help='Print JSON format')
+@click.argument('key')
+def show_dataset(basedir, db, index, raw, key):
+    """Show descriptor for downloaded dataset."""
+    # Read the index of given.
+    doc = util.read_index(index) if index is not None else None
+    store = LocalStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    util.print_dataset(dataset=store.open(key), raw=raw)

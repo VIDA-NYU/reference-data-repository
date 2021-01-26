@@ -9,8 +9,9 @@
 
 import click
 
-from refdata.cli.util import read_index
-from refdata.repo import RepositoryManager
+from refdata.repo import RepositoryManager, validate
+
+import refdata.cli.util as util
 
 
 @click.group()
@@ -24,18 +25,26 @@ def cli_repo():
 @cli_repo.command(name='list')
 @click.option('-i', '--index', required=False, help='Repository index file')
 def list_repository(index):
-    """List repository content."""
+    """List repository index content."""
     # Read the index of given.
-    doc = None
-    if index is not None:
-        doc = read_index(index)
-    datasets = RepositoryManager(doc=doc).find()
-    # Compute max. length for dataset identifier, name and description.
-    id_len = max([len(d.identifier) for d in datasets] + [10])
-    name_len = max([len(d.name) for d in datasets] + [4])
-    desc_len = max([len(d.description) for d in datasets if d.description is not None] + [11])
-    template = '{:>' + str(id_len) + '} | {:<' + str(name_len) + '} | {:<' + str(desc_len) + '}'
-    click.echo(template.format('Identifier', 'Name', 'Description'))
-    click.echo(template.format('-' * id_len, '-' * name_len, '-' * desc_len))
-    for dataset in sorted(datasets, key=lambda d: d.name):
-        click.echo(template.format(dataset.identifier, dataset.name, dataset.description))
+    doc = util.read_index(index) if index is not None else None
+    util.print_datasets(RepositoryManager(doc=doc).find())
+
+
+@cli_repo.command(name='show')
+@click.option('-i', '--index', required=False, help='Repository index file')
+@click.option('-r', '--raw', is_flag=True, default=False, help='Print JSON format')
+@click.argument('key')
+def show_dataset(index, raw, key):
+    """Show dataset descriptor from repository index."""
+    # Read the index of given.
+    doc = util.read_index(index) if index is not None else None
+    util.print_dataset(dataset=RepositoryManager(doc=doc).get(key), raw=raw)
+
+
+@cli_repo.command(name='validate')
+@click.argument('file')
+def validate_index_file(file):
+    """Validate repository index file."""
+    validate(doc=util.read_index(file))
+    click.echo('Document is valid.')
