@@ -69,7 +69,7 @@ def countries_file():
 @pytest.fixture
 def index_file():
     """Get path to the default repository index file."""
-    basedir = os.path.dirname(os.path.realpath(__file__))
+    basedir = os.path.abspath(os.path.dirname(os.path.realpath(__file__)))
     return os.path.join(basedir, './.files/index.json')
 
 

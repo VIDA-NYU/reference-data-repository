@@ -100,9 +100,9 @@ def read_index(filename: str) -> Dict:
     -------
     dict
     """
-    if os.path.isfile(filename):
+    try:
         with open(filename, 'r') as f:
-            doc = json.load(f)
-    else:
-        doc = download_index(url=filename)
-    return doc
+            return json.load(f)
+    except OSError as ex:
+        print(ex)
+    return download_index(url=filename)
