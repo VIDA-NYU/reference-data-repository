@@ -28,7 +28,7 @@ ENV_URL = 'REFDATA_URL'
 DEFAULT_DIR = '.refdata'
 
 """Default Url for the repository index file."""
-DEFAULT_URL = ''
+DEFAULT_URL = 'https://raw.githubusercontent.com/VIDA-NYU/reference-data-repository/master/data/index.json'
 
 
 # -- Helper Functions for Accessing Configuration Values ----------------------
