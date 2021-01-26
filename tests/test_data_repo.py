@@ -67,9 +67,3 @@ def test_read_linked_index(mock_response):
     assert len(repo.find()) == 3
     assert repo.get('us_cities') is not None
     assert repo.get('cities') is not None
-
-
-def test_valid_repository_index(mock_response):
-    """Test validating a 'downloaded' repository index document."""
-    validate('index.json')
-    validate('multi-index.json')

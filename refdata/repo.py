@@ -125,26 +125,23 @@ schema = yaml.load(pkg_resources.open_text(__package__, 'schema.yaml'), Loader=y
 resolver = RefResolver(schemafile, schema)
 
 
-def validate(doc: Union[str, Dict]) -> Draft7Validator:
-    """Validate the schema for a repository index document. This function
-    accepts either the Url for the document or a dictionary containing the
-    document itself. An error is raised if the referenced document does not
-    satisfy the defined repository index schema.
+def validate(doc: Dict) -> Draft7Validator:
+    """Validate the schema for a repository index document.
+
+    The given document is a dictionary containing the repository index. An
+    error is raised if the referenced document does not satisfy the defined
+    repository index schema.
 
 
     Parameters
     ----------
-    doc: string or dict
-        Repository index document or Url pointing to the document.
+    doc: dict
+        Repository index document.
 
     Raises
     ------
     jsonschema.exceptions.ValidationError
     """
-    # Download the document if a string (i.e., Url) is given as the argument
-    # value.
-    if isinstance(doc, str):
-        doc = download_index(url=doc)
     validator = Draft7Validator(
         schema=schema['definitions']['RepositoryIndex'],
         resolver=resolver
