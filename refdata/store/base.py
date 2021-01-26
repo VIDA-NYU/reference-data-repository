@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Set, Tuple, Union
 import os
 import pandas as pd
 import requests
+import warnings
 
 from refdata.base import DatasetDescriptor
 from refdata.store.checksum import hash_file
@@ -162,7 +163,10 @@ class LocalStore:
                 ds_exists = True
         # Download the dataset files into the dataset target directory
         dst = self._datafile(dataset_id)
-        download_file(dataset=ds, dst=dst)
+        try:
+            download_file(dataset=ds, dst=dst)
+        except err.InvalidChecksumError as ex:
+            warnings.warn(str(ex))
         # Create entry for the downloaded dataset if it was downloaded for
         # the first time.
         if not ds_exists:
