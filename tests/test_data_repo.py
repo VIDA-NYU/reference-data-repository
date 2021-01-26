@@ -10,6 +10,7 @@
 from jsonschema.exceptions import ValidationError
 
 import pytest
+
 from refdata.repo import RepositoryManager, download_index, validate
 
 

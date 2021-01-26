@@ -19,7 +19,8 @@ install_requires = [
     'pyyaml>=5.1',
     'jsonschema',
     'SQLAlchemy>=1.3.18',
-    'requests'
+    'requests',
+    'Click>=7.0.0'
 ]
 
 
@@ -87,6 +88,11 @@ setup(
     extras_require=extras_require,
     tests_require=tests_require,
     install_requires=install_requires,
+    entry_points={
+        'console_scripts': [
+            'refdata = refdata.cli.base:cli'
+        ]
+    },
     classifiers=[
         'License :: OSI Approved :: MIT',
         'Operating System :: OS Independent',

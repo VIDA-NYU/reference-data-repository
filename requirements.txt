@@ -4,3 +4,4 @@ pyyaml>=5.1
 jsonschema
 SQLAlchemy>=1.3.18
 requests
+Click>=7.0.0
