@@ -47,7 +47,7 @@ Below is an example dataset descriptor.
     }
 
 
-The full schema for the data repository index content is defined in `schema.yaml <>`_.
+The full schema for the data repository index content is defined in `schema.yaml <https://github.com/VIDA-NYU/reference-data-repository/blob/master/refdata/schema.yaml>`_.
 
 
 Local Data Repository
