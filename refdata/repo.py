@@ -120,6 +120,9 @@ def download_index(url: str) -> Dict:
 
 
 """Create schema validator for the repository index file."""
+# Make sure that the path to the schema file is a valid URI. Otherwise, errors
+# occur (at least on MS Windows environments). Changed based on:
+# https://github.com/Julian/jsonschema/issues/398#issuecomment-385130094
 schemafile = 'file:///{}'.format(os.path.abspath(os.path.join(__file__, 'schema.yaml')))
 schema = yaml.safe_load(pkg_resources.open_text(__package__, 'schema.yaml'))
 resolver = RefResolver(schemafile, schema)

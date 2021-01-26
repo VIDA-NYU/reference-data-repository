@@ -8,12 +8,12 @@ Reference Data Repository
 About
 =====
 
-The aim of the Reference Data Repository is to provide access to reference data sets (e.g., controlled vocabularies, gazetteers, etc.) that are accessible on the Web and that are useful for tools like `openclean <https://github.com/VIDA-NYU/openclean-core/>`_.
+The **Reference Data Repository** provides access to reference data sets (e.g., controlled vocabularies, gazetteers, etc.) that are accessible on the Web and that are useful for data cleaning and data profiling tools like `openclean <https://github.com/VIDA-NYU/openclean-core/>`_ and `Auctus <https://gitlab.com/ViDA-NYU/auctus/auctus>`_.
 
 
 Data Hosting
 ------------
-Individual datasets may be hosted by data maintainers on different platforms. The only requirement is that the datasets (or individual dataset versions) are accessible via HTTP (single GET request). Information about all the available dataset is maintained in a central index (as a Json file) that is hosted on a version control system (e.g., GitHub, GitLab, ...).
+Individual datasets are hosted by data maintainers on different platforms. The only requirement is that the datasets (or individual dataset versions) are accessible via HTTP GET requests. Information about dataset is maintained in a central index (as a Json file) that is hosted on the Web (see for example the `openclean reference data collection <https://github.com/VIDA-NYU/openclean-reference-data/blob/master/data/index.json>`_).
 
 
 
@@ -23,6 +23,31 @@ Each dataset has a unique identifier. Different file formats are supported for t
 
 Datasets are considered tabular (or sets of columns). Users may access only a single column from a dataset (e.g., country_name), multiple columns (e.b., country_name, captial_city) or the full dataset.
 
+Below is an example dataset descriptor.
+
+.. code-block:: json
+
+    {
+        "id": "encyclopaedia_britannica:us_cities",
+        "name": "Cities in the U.S.",
+        "description": "Names of cities in the U.S. from the Encyclopaedia Britannica.",
+        "url": "https://raw.githubusercontent.com/VIDA-NYU/openclean-reference-data/master/data/us_cities.tsv",
+        "checksum": "d361873f13b867805628d7db63987392835114f13da9ead0e11ccff2946631d2",
+        "webpage": "https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068",
+        "schema": [
+            {"id": "city", "name": "City", "description": "City Name", "dtype": "text"},
+            {"id": "state", "name": "State", "description": "U.S. State Name", "dtype": "text"}
+        ],
+        "format": {
+            "type": "csv",
+            "parameters": {
+                "delim": "\t"
+            }
+        }
+    }
+
+
+The full schema for the data repository index content is defined in `schema.yaml <>`_.
 
 
 Local Data Repository
