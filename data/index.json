@@ -1,0 +1,5 @@
+{
+    "repositories": [
+        "https://raw.githubusercontent.com/VIDA-NYU/openclean-reference-data/master/data/index.json"
+    ]
+}
