@@ -66,6 +66,13 @@ def countries_file():
     return os.path.join(basedir, './.files/countries.json')
 
 
+@pytest.fixture
+def index_file():
+    """Get path to the default repository index file."""
+    basedir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(basedir, './.files/index.json')
+
+
 # -- Helper class and fixture for mocked requests -----------------------------
 
 class MockResponse:
