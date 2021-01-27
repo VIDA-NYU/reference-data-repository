@@ -17,15 +17,17 @@ class InvalidChecksumError(RefDataError):
     """Error that is raised when the checksum for a downloaded file does not
     match the checksum that is defined in the repository index.
     """
-    def __init__(self, key: str):
+    def __init__(self, key: str, checksum: str):
         """Initialize the error message.
 
         Parameters
         ----------
         key: string
             Unique external key for the dataset that was downloaded.
+        checksum: string
+            Checksum that was computed for the downloaded file.
         """
-        msg = "invaid checksum for downloaded data file of dataset '{}'".format(key)
+        msg = "invaid checksum '{}' for downloaded data file of dataset '{}'".format(checksum, key)
         super(InvalidChecksumError, self).__init__(msg)
 
 

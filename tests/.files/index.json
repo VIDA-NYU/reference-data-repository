@@ -5,7 +5,7 @@
             "name": "Cities in the U.S.",
             "description": "Names of cities in the U.S. from the Encyclopaedia Britannica.",
             "url": "cities.tsv.gz",
-            "checksum": "b5ea2419cc4b029b1b061da14a4fffe2203bce16e95857d97b68d3fa8335f72b",
+            "checksum": "8d4c77b84cbe8c6683bbfa9f58c8268455f820b98289b51955dcef87b1d48d60",
             "compression": "gzip",
             "webpage": "https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068",
             "schema": [
