@@ -21,7 +21,7 @@ def test_format_error():
     doc = {
         'id': '0000',
         'url': 'countries.json',
-        "checksum": "403126a5fb62f83b2ff65fb2bd7a3e87d57c0041cc086da813134035e7b0157c",
+        "checksum": "be93e602ede78dd6a5b232fcdae54466bfca9f1f5f1664f2d6ee3b4738bd5f15",
         "schema": [{"id": "name"}, {"id": "alpha2Code"}],
         "format": {
             "type": "unknown",
