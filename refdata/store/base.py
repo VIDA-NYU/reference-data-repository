@@ -7,13 +7,14 @@
 
 """Manager for downloaded dataset files on the local file system."""
 
+from pathlib import Path
+from pooch.core import stream_download
+from pooch.downloaders import choose_downloader
+
 from typing import Dict, List, Optional, Set, Tuple, Union
 
-import hashlib
 import os
 import pandas as pd
-import requests
-import warnings
 
 from refdata.base import DatasetDescriptor
 from refdata.store.dataset import DatasetHandle
@@ -98,7 +99,7 @@ class LocalStore:
         -------
         string
         """
-        return os.path.join(self.basedir, '{}.{}'.format(dataset_id, 'dat'))
+        return os.path.abspath(os.path.join(self.basedir, '{}.{}'.format(dataset_id, 'dat')))
 
     def distinct(
         self, key: str, columns: Optional[Union[str, List[str]]] = None,
@@ -366,19 +367,13 @@ def download_file(dataset: DatasetDescriptor, dst: str):
 
     Raises
     ------
-    refdata.error.InvalidChecksumError
+    ValueError
     """
-    with requests.get(dataset.url, stream=True) as r:
-        r.raise_for_status()
-        # Compute the checksum as we download instaed of computing it over the
-        # downloaded file. The latter cuased problems with text files that are
-        # downloaded to/from MS Windows systems.
-        m = hashlib.sha256()
-        with open(dst, 'wb') as f:
-            for buf in r.iter_content(chunk_size=8192):
-                m.update(buf)
-                f.write(buf)
-    # Raise error if the checksum for the downloaded file is invalid.
-    checksum = m.hexdigest()
-    if checksum != dataset.checksum:
-        raise err.InvalidChecksumError(key=dataset.identifier, checksum=checksum)
+    url = dataset.url
+    stream_download(
+        url=url,
+        fname=Path(dst),
+        known_hash=dataset.checksum,
+        downloader=choose_downloader(url),
+        pooch=None
+    )

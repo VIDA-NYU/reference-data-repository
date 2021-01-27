@@ -19,6 +19,7 @@ install_requires = [
     'pyyaml>=5.1',
     'jsonschema',
     'SQLAlchemy>=1.3.18',
+    'pooch>=1.3.0',
     'requests',
     'Click>=7.0.0'
 ]

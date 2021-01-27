@@ -84,7 +84,7 @@ class MockResponse:
         """Keep track of the request Url to be able to load different test
         data files.
         """
-        self.url = url
+        self.url = url if not url.startswith('http://') else url[7:]
         self._fh = None
 
     def __enter__(self):
@@ -107,11 +107,13 @@ class MockResponse:
             return f.read()
 
     def iter_content(self, chunk_size):
+        self.__enter__()
         while True:
             data = self._fh.read(chunk_size)
             if not data:
                 break
             yield data
+        self.__exit__(None, None, None)
 
     def json(self):
         """If the Url is the DEFAULT_URL the test index is returned. Otherwise
