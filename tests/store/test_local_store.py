@@ -38,7 +38,7 @@ def test_download_invalid_checksum(store, tmpdir):
     # download it.
     ds = store.repository().get('cities')
     ds.doc['checksum'] = '0000'
-    with pytest.raises(err.InvalidChecksumError):
+    with pytest.raises(ValueError):
         download_file(dataset=ds, dst=os.path.join(tmpdir, 'test.dat'))
 
 

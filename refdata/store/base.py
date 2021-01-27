@@ -7,15 +7,16 @@
 
 """Manager for downloaded dataset files on the local file system."""
 
+from pathlib import Path
+from pooch.core import stream_download
+from pooch.downloaders import choose_downloader
+
 from typing import Dict, List, Optional, Set, Tuple, Union
 
 import os
 import pandas as pd
-import requests
-import warnings
 
 from refdata.base import DatasetDescriptor
-from refdata.store.checksum import hash_file
 from refdata.store.dataset import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
 from refdata.repo import RepositoryManager
@@ -98,7 +99,7 @@ class LocalStore:
         -------
         string
         """
-        return os.path.join(self.basedir, '{}.{}'.format(dataset_id, 'dat'))
+        return os.path.abspath(os.path.join(self.basedir, '{}.{}'.format(dataset_id, 'dat')))
 
     def distinct(
         self, key: str, columns: Optional[Union[str, List[str]]] = None,
@@ -161,12 +162,11 @@ class LocalStore:
             else:
                 dataset_id = dataset.dataset_id
                 ds_exists = True
-        # Download the dataset files into the dataset target directory
+        # Download the dataset files into the dataset target directory. This
+        # will raise an error if the checksum for the downloaded file does not
+        # match the expected checksum from the repository index.
         dst = self._datafile(dataset_id)
-        try:
-            download_file(dataset=ds, dst=dst)
-        except err.InvalidChecksumError as ex:
-            warnings.warn(str(ex))
+        download_file(dataset=ds, dst=dst)
         # Create entry for the downloaded dataset if it was downloaded for
         # the first time.
         if not ds_exists:
@@ -352,9 +352,11 @@ class LocalStore:
 # -- Helper Functions ---------------------------------------------------------
 
 def download_file(dataset: DatasetDescriptor, dst: str):
-    """Download data file for the given dataset. Raises an error if the checksum
-    of the downloaded file does not match the value in the given dataset
-    descriptor.
+    """Download data file for the given dataset.
+
+    Computes the checksum for the downloaded file during download. Raises an
+    error if the checksum of the downloaded file does not match the value in
+    the given dataset descriptor.
 
     Parameters
     ----------
@@ -365,13 +367,13 @@ def download_file(dataset: DatasetDescriptor, dst: str):
 
     Raises
     ------
-    refdata.error.InvalidChecksumError
+    ValueError
     """
-    with requests.get(dataset.url, stream=True) as r:
-        r.raise_for_status()
-        with open(dst, 'wb') as f:
-            for buf in r.iter_content(chunk_size=8192):
-                f.write(buf)
-    # Raise error if the checksum for the downloaded file is invalid.
-    if hash_file(filename=dst) != dataset.checksum:
-        raise err.InvalidChecksumError(key=dataset.identifier)
+    url = dataset.url
+    stream_download(
+        url=url,
+        fname=Path(dst),
+        known_hash=dataset.checksum,
+        downloader=choose_downloader(url),
+        pooch=None
+    )

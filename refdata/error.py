@@ -13,22 +13,6 @@ class RefDataError(Exception):
     pass
 
 
-class InvalidChecksumError(RefDataError):
-    """Error that is raised when the checksum for a downloaded file does not
-    match the checksum that is defined in the repository index.
-    """
-    def __init__(self, key: str):
-        """Initialize the error message.
-
-        Parameters
-        ----------
-        key: string
-            Unique external key for the dataset that was downloaded.
-        """
-        msg = "invaid checksum for downloaded data file of dataset '{}'".format(key)
-        super(InvalidChecksumError, self).__init__(msg)
-
-
 class InvalidFormatError(RefDataError):
     """Error that indicates the the format specification for a dataset is
     invalid. The error message contains more details about the cause for
