@@ -24,7 +24,7 @@
             "name": "REST Countries",
             "description": "Information about countries in the world available from the restcountries.eu project.",
             "url": "http://countries.json",
-            "checksum": "5abc6de93021be06dc7b4df86017415c0522e5d3e2371dc93dd0217f2440aaa7",
+            "checksum": "889c264f2ac4629b4998aa8b8b1d4de45890c39c10e24cfd8a017e9924e805c7",
             "webpage": "https://restcountries.eu/",
             "schema": [
                 {"id": "name", "name": "Name", "description": "Country name", "dtype": "text"},
