@@ -1,43 +1,18 @@
 [
     {
         "name": "Afghanistan",
-        "topLevelDomain": [
-            ".af"
-        ],
         "alpha2Code": "AF",
         "alpha3Code": "AFG",
-        "callingCodes": [
-            "93"
-        ],
         "capital": "Kabul",
         "region": "Asia",
-        "subregion": "Southern Asia",
-        "population": 27657145,
-        "latlng": [
-            33,
-            65
-        ],
-        "numericCode": "004",
-        "cioc": "AFG"
+        "subregion": "Southern Asia"
     },
     {
         "name": "Aland Islands",
-        "topLevelDomain": [
-            ".ax"
-        ],
         "alpha2Code": "AX",
         "alpha3Code": "ALA",
-        "callingCodes": [
-            "358"
-        ],
         "capital": "Mariehamn",
         "region": "Europe",
-        "subregion": "Northern Europe",
-        "population": 28875,
-        "latlng": [
-            60.116667,
-            19.9
-        ],
-        "numericCode": "248"
+        "subregion": "Northern Europe"
     }
 ]
