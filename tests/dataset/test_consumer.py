@@ -9,7 +9,7 @@
 
 import pytest
 
-from refdata.loader.consumer import DataFrameGenerator, DistinctSetGenerator, MappingGenerator
+from refdata.dataset.consumer import DataFrameGenerator, DistinctSetGenerator, MappingGenerator
 
 
 # List of rows for test purposes.

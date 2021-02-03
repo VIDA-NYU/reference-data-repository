@@ -11,8 +11,9 @@ import gzip
 import pandas as pd
 
 from refdata.base import DatasetDescriptor
-from refdata.loader import CSVLoader, JsonLoader
-from refdata.loader.consumer import DataConsumer, DataFrameGenerator, DistinctSetGenerator, MappingGenerator
+from refdata.dataset.consumer import DataConsumer, DataFrameGenerator, DistinctSetGenerator, MappingGenerator
+from refdata.dataset.csv_loader import CSVLoader
+from refdata.dataset.json_loader import JsonLoader
 
 import refdata.error as err
 
@@ -113,12 +114,12 @@ class DatasetHandle(DatasetDescriptor):
         columns: list of string
             Column identifier defining the content and the schema of the
             returned data.
-        consumer: refdata.loader.consumer.DataConsumer
+        consumer: refdata.dataset.consumer.DataConsumer
             Consumer for data rows that are being read.
 
         Returns
         -------
-        refdata.loader.consumer.DataConsumer
+        refdata.dataset.consumer.DataConsumer
         """
         # Open the file depending on whether it is compressed or not. By now,
         # we only support gzip compression.

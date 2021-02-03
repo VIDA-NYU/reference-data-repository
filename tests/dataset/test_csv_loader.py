@@ -12,8 +12,8 @@ from io import StringIO
 import pytest
 
 from refdata.base import FormatDescriptor
-from refdata.loader.consumer import DataCollector
-from refdata.loader.csv_loader import CSVLoader
+from refdata.dataset.consumer import DataCollector
+from refdata.dataset.csv_loader import CSVLoader
 
 
 @pytest.mark.parametrize(

@@ -13,7 +13,7 @@ the loader interface needs to be provided.
 from abc import ABCMeta, abstractmethod
 from typing import IO, List
 
-from refdata.loader.consumer import DataConsumer
+from refdata.dataset.consumer import DataConsumer
 
 
 class DatasetLoader(metaclass=ABCMeta):
@@ -44,11 +44,11 @@ class DatasetLoader(metaclass=ABCMeta):
         columns: list of string
             Column identifier defining the content and the schema of the
             returned data.
-        consumer: refdata.loader.consumer.DataConsumer
+        consumer: refdata.dataset.consumer.DataConsumer
             Consumer for data rows that are being read.
 
         Returns
         -------
-        refdata.loader.consumer.DataConsumer
+        refdata.dataset.consumer.DataConsumer
         """
         raise NotImplementedError()  # pragma: no cover

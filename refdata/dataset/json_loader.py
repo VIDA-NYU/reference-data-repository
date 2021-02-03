@@ -12,8 +12,8 @@ from typing import Any, Dict, IO, List
 import json
 
 from refdata.base import FormatDescriptor
-from refdata.loader.consumer import DataConsumer
-from refdata.loader.base import DatasetLoader
+from refdata.dataset.consumer import DataConsumer
+from refdata.dataset.loader import DatasetLoader
 
 
 class JsonLoader(DatasetLoader):
@@ -68,7 +68,7 @@ class JsonLoader(DatasetLoader):
         columns: list of string
             Column identifier defining the content and the schema of the
             returned data.
-        consumer: refdata.loader.consumer.DataConsumer
+        consumer: refdata.dataset.consumer.DataConsumer
             Consumer for data rows that are being read.
 
         Returns

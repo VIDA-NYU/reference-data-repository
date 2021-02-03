@@ -9,9 +9,9 @@
 
 import pytest
 
-from refdata.loader.consumer import DataCollector
-from refdata.loader.json_loader import JQuery
-from refdata.store.dataset import DatasetHandle
+from refdata.dataset.base import DatasetHandle
+from refdata.dataset.consumer import DataCollector
+from refdata.dataset.json_loader import JQuery
 
 
 # -- Loader -------------------------------------------------------------------

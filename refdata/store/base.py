@@ -17,7 +17,7 @@ import os
 import pandas as pd
 
 from refdata.base import DatasetDescriptor
-from refdata.store.dataset import DatasetHandle
+from refdata.dataset.base import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
 from refdata.repo import RepositoryManager
 from refdata.version import __version__
