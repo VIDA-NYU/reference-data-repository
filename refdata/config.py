@@ -24,9 +24,6 @@ ENV_BASEDIR = 'REFDATA_BASEDIR'
 ENV_URL = 'REFDATA_URL'
 
 
-"""Default directory name for the local store."""
-DEFAULT_DIR = '.refdata'
-
 """Default Url for the repository index file."""
 DEFAULT_URL = 'https://raw.githubusercontent.com/VIDA-NYU/reference-data-repository/master/data/index.json'
 
@@ -64,7 +61,7 @@ def BASEDIR() -> str:
     """
     basedir = os.environ.get(ENV_BASEDIR)
     if not basedir:
-        basedir = os.path.join(user_cache_dir(appname=__name__.split('.')[0]), DEFAULT_DIR)
+        basedir = user_cache_dir(appname=__name__.split('.')[0])
     return basedir
 
 

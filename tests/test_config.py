@@ -47,9 +47,9 @@ def test_basedir_config():
     os.environ[config.ENV_BASEDIR] = '/dev/null'
     assert config.BASEDIR() == '/dev/null'
     os.environ[config.ENV_BASEDIR] = ''
-    assert config.BASEDIR() == os.path.join(default_dir, config.DEFAULT_DIR)
+    assert config.BASEDIR() == default_dir
     del os.environ[config.ENV_BASEDIR]
-    assert config.BASEDIR() == os.path.join(default_dir, config.DEFAULT_DIR)
+    assert config.BASEDIR() == default_dir
 
 
 def test_repository_url():

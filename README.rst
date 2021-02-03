@@ -61,7 +61,7 @@ The full schema for the data repository index content is defined in `schema.yaml
 
 Local Data Repository
 ---------------------
-Users maintain copies of the datasets for local access. By default, datasets are stored in a subfolder `.refdata` in the users home directory.
+Users maintain copies of the datasets for local access. By default, datasets are stored in a subfolder in the user's cache directory.
 
 
 Getting Started
