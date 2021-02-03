@@ -11,11 +11,14 @@ import pytest
 
 from refdata.repo import RepositoryManager, download_index
 from refdata.store import LocalStore
+from refdata.version import __version__
 
 
 @pytest.fixture
 def store(mock_response, tmpdir):
     return LocalStore(
+        package_name='refdata_test',
+        package_version=__version__,
         basedir=tmpdir,
         repo=RepositoryManager(doc=download_index('index.json')),
         auto_download=False

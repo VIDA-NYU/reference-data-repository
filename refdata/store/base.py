@@ -20,6 +20,7 @@ from refdata.base import DatasetDescriptor
 from refdata.store.dataset import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
 from refdata.repo import RepositoryManager
+from refdata.version import __version__
 
 import refdata.config as config
 import refdata.error as err
@@ -28,14 +29,15 @@ import refdata.error as err
 class LocalStore:
     """The local dataset store maintains downloaded datasets on the file system.
     All datasets are maintained in subfolders of a base directory. By default,
-    the base directory is in the users home directory under `.refdata`.
+    the base directory is in the users cache directory under the package name.
 
     Information about downloaded datasets is maintaind in an SQLite database
     `refdata.db` that is created in the base directory. The data file for
     each downloaded dataset is maintained in a separate subfolder.
     """
     def __init__(
-        self, basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
+        self, package_name: str, package_version: str,
+        basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
         auto_download: Optional[bool] = None, connect_url: Optional[str] = None
     ):
         """Initialize the base directory on the file system where downloaded
@@ -45,13 +47,20 @@ class LocalStore:
 
         Parameters
         ----------
+        package_name: string
+            Name of the package that created the instance of the local store.
+            This name is used to associated downloaded datasets in the local
+            database with the packages that downloaded them.
+        package_version: string
+            Version information for the package that created the local store
+            instance.
         basedir: string, default=None
             Path to the directory for downloaded datasets. By default, the
             directory that is specified in the environment variable REFDATA_BASEDIR
-            is used or $HOME/.refdata if the environment variable is not set.
+            is used. If the environment variable is not set an directory under
+            the OS-specific users cache data directory is used.
         repo: refdata.repo.RepositoryManager, default=None
-            Repository manager that is used to access dataset metadata for
-            downloading datasets.
+            Associated repository manager.
         auto_download: bool, default=None
             If auto download is enabled (True) datasets are downloaded automatically
             when they are first accessed via `.open()`. If this option is not
@@ -65,11 +74,13 @@ class LocalStore:
             value is given the default SQLite database is used. If the respective
             database file does not exist a new database will be created.
         """
+        self.package_name = package_name
+        self.package_version = package_version
         # Create the base directory if it does not exist.
         self.basedir = basedir if basedir else config.BASEDIR()
         os.makedirs(self.basedir, exist_ok=True)
-        # Set the repository manager. If none was given the default manager will
-        # be used when it is first accessed.
+        # Set the repository manager. If no manager is given it will be
+        # instantiated when it is first accessed.
         self.repo = repo
         # Set the auto download option. Read REFDATA_AUTODOWNLOAD if not no
         # argument value was given. The default is False.
@@ -174,7 +185,10 @@ class LocalStore:
                 dataset = Dataset(
                     dataset_id=dataset_id,
                     key=key,
-                    descriptor=ds.to_dict()
+                    descriptor=ds.to_dict(),
+                    package_name=self.package_name,
+                    package_version=self.package_version,
+                    filesize=os.stat(dst).st_size
                 )
                 session.add(dataset)
         return dataset_id, ds.to_dict()
@@ -347,6 +361,49 @@ class LocalStore:
         if self.repo is None:
             self.repo = RepositoryManager()
         return self.repo
+
+
+class RefStore(LocalStore):
+    """Default local store for the refdata package. Uses the module name and
+    package version to set the respective properties of the created local store
+    instance.
+    """
+    def __init__(
+        self, basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
+        auto_download: Optional[bool] = None, connect_url: Optional[str] = None
+    ):
+        """Initialize the store properties.
+
+        Parameters
+        ----------
+        basedir: string, default=None
+            Path to the directory for downloaded datasets. By default, the
+            directory that is specified in the environment variable REFDATA_BASEDIR
+            is used. If the environment variable is not set an directory under
+            the OS-specific users cache data directory is used.
+        repo: refdata.repo.RepositoryManager, default=None
+            Associated repository manager.
+        auto_download: bool, default=None
+            If auto download is enabled (True) datasets are downloaded automatically
+            when they are first accessed via `.open()`. If this option is not
+            enabled and an attempt is made to open a datasets that has not yet
+            been downloaded to the local file syste, an error is raised. If this
+            argument is not given the value from the environment variable
+            REFDATA_AUTODOWNLOAD is used or False if the variable is not set.
+        connect_url: string, default=None
+            SQLAlchemy database connect Url string. If a value is given it is
+            assumed that the database exists and has been initialized. If no
+            value is given the default SQLite database is used. If the respective
+            database file does not exist a new database will be created.
+        """
+        super(RefStore, self).__init__(
+            package_name=__name__.split('.')[0],
+            package_version=__version__,
+            basedir=basedir,
+            repo=repo,
+            auto_download=auto_download,
+            connect_url=connect_url
+        )
 
 
 # -- Helper Functions ---------------------------------------------------------

@@ -51,7 +51,7 @@ def AUTO_DOWNLOAD() -> bool:
 def BASEDIR() -> str:
     """Get the current value for the environment variable REFDATA_BASEDIR.
 
-    If the value is not set (missing or empty) the folder `.refdata` in the
+    If the value is not set (missing or empty) the folder `refdata` in the
     OS-specific data cache directory for the current user is used as the
     default.
 
