@@ -35,9 +35,11 @@ DEFAULT_URL = 'https://raw.githubusercontent.com/VIDA-NYU/reference-data-reposit
 
 def AUTO_DOWNLOAD() -> bool:
     """Get the value for the auto_download flag from the environment variable
-    REFDATA_AUTODOWNLOAD. Casts the current value for the environment variable
-    to Boolean. Only if the value equals 'true' (ignoring case) will the result
-    be True. The default value is False.
+    REFDATA_AUTODOWNLOAD.
+
+    Casts the current value for the environment variable to Boolean. Only if
+    the value equals 'true' (ignoring case) will the result be True. The
+    default value is False.
 
     Returns
     -------
@@ -50,9 +52,11 @@ def AUTO_DOWNLOAD() -> bool:
 
 
 def BASEDIR() -> str:
-    """Get the current value for the environment variable REFDATA_BASEDIR. If
-    the value is not set (missing or empty) the folder `.refdata` in the users
-    home directory is used as the default.
+    """Get the current value for the environment variable REFDATA_BASEDIR.
+
+    If the value is not set (missing or empty) the folder `.refdata` in the
+    OS-specific data cache directory for the current user is used as the
+    default.
 
     Returns
     -------
