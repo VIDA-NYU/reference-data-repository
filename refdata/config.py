@@ -11,7 +11,7 @@ function is defined to provide easy access to the environment variable and its
 default value.
 """
 
-from pathlib import Path
+from appdirs import user_cache_dir
 
 import os
 
@@ -60,7 +60,7 @@ def BASEDIR() -> str:
     """
     basedir = os.environ.get(ENV_BASEDIR)
     if not basedir:
-        basedir = os.path.join(str(Path.home()), DEFAULT_DIR)
+        basedir = os.path.join(user_cache_dir(appname=__name__.split('.')[0]), DEFAULT_DIR)
     return basedir
 
 

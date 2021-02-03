@@ -7,7 +7,7 @@
 
 """Unit tests for the configuration helper methods."""
 
-from pathlib import Path
+from appdirs import user_cache_dir
 
 import os
 import pytest
@@ -43,12 +43,13 @@ def test_auto_download_flag(value, result):
 
 def test_basedir_config():
     """Test getting the configuration value for the local store base direcory."""
+    default_dir = user_cache_dir(appname=config.__name__.split('.')[0])
     os.environ[config.ENV_BASEDIR] = '/dev/null'
     assert config.BASEDIR() == '/dev/null'
     os.environ[config.ENV_BASEDIR] = ''
-    assert config.BASEDIR() == os.path.join(str(Path.home()), config.DEFAULT_DIR)
+    assert config.BASEDIR() == os.path.join(default_dir, config.DEFAULT_DIR)
     del os.environ[config.ENV_BASEDIR]
-    assert config.BASEDIR() == os.path.join(str(Path.home()), config.DEFAULT_DIR)
+    assert config.BASEDIR() == os.path.join(default_dir, config.DEFAULT_DIR)
 
 
 def test_repository_url():
