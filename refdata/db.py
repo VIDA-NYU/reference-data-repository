@@ -14,7 +14,7 @@ import uuid
 
 from datetime import datetime
 from dateutil.tz import UTC
-from sqlalchemy import Column, Integer, String, create_engine
+from sqlalchemy import Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import TypeDecorator, Unicode
@@ -85,7 +85,6 @@ class Dataset(Base):
     package_name = Column(String(256), nullable=False)
     package_version = Column(String(256), nullable=False)
     created_at = Column(String(32), default=local_time, nullable=False)
-    filesize = Column(Integer, nullable=False)
 
 
 # -- Database Object ----------------------------------------------------------

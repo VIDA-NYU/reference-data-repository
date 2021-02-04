@@ -9,7 +9,7 @@
 line interface.
 """
 
-from typing import Dict, List
+from typing import Dict
 
 import click
 import json
@@ -18,31 +18,13 @@ from refdata.base import DatasetDescriptor
 from refdata.repo.loader import FileLoader, UrlLoader
 
 
-def print_datasets(datasets: List[DatasetDescriptor]):
-    """Print a listing of datasets to the console.
+class TPrinter:
+    """Wrapper around `click.echo` for table printing."""
+    def write(self, s):
+        click.echo(s)
 
-    Outputs the identifier, name and description for each dataset in the given
-    list. Datasets are sorted by their name.
-
-    Parameters
-    ----------
-    datasets: list of refdata.base.DatasetDescriptor
-        List of dataset descriptors.
-    """
-    # Compute maximal length of values for the dataset identifier, name and
-    # description. The length values are used to align the output.
-    id_len = max([len(d.identifier) for d in datasets] + [10])
-    name_len = max([len(d.name) for d in datasets] + [4])
-    desc_len = max([len(d.description) for d in datasets if d.description is not None] + [11])
-    # Create the output template with all values left aligned.
-    template = '{:<' + str(id_len) + '} | {:<' + str(name_len) + '} | {:<' + str(desc_len) + '}'
-    click.echo()
-    click.echo(template.format('Identifier', 'Name', 'Description'))
-    click.echo(template.format('-' * id_len, '-' * name_len, '-' * desc_len))
-    # Sort datasets by name before output.
-    for dataset in sorted(datasets, key=lambda d: d.name):
-        desc = dataset.description if dataset.description is not None else ''
-        click.echo(template.format(dataset.identifier, dataset.name, desc))
+    def flush(self):
+        pass
 
 
 def print_dataset(dataset: DatasetDescriptor, raw: bool):

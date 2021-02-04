@@ -36,8 +36,7 @@ def test_database_session():
                 key='my_key',
                 descriptor={'id': 'my_key'},
                 package_name='test',
-                package_version='1',
-                filesize=0
+                package_version='1'
             )
         )
     with db.session() as session:
@@ -46,8 +45,7 @@ def test_database_session():
                 key='a_key',
                 descriptor={'id': 'a_key'},
                 package_name='test',
-                package_version='1',
-                filesize=0
+                package_version='1'
             )
         )
     with db.session() as session:
@@ -61,7 +59,6 @@ def test_database_session():
                     key='my_key',
                     descriptor={'id': 'my_key'},
                     package_name='test',
-                    package_version='1',
-                    filesize=0
+                    package_version='1'
                 )
             )

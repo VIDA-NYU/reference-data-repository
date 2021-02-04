@@ -10,6 +10,7 @@
 import pytest
 
 from refdata.dataset.base import DatasetHandle
+from refdata.db import local_time
 
 import refdata.error as err
 
@@ -29,4 +30,10 @@ def test_format_error():
         }
     }
     with pytest.raises(err.InvalidFormatError):
-        DatasetHandle(doc=doc, datafile='/dev/null')
+        DatasetHandle(
+            descriptor=doc,
+            package_name='test',
+            package_version='0',
+            created_at=local_time(),
+            datafile='/dev/null'
+        )

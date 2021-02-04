@@ -7,9 +7,12 @@
 
 """Commands that interact with the local data store."""
 
-import click
+from datasize import DataSize
 
-from refdata.repo.loader import DictLoader
+import click
+import tableprint as tp
+
+from refdata.repo.loader import DictLoader, UrlLoader
 from refdata.store.base import RefStore
 
 import refdata.cli.util as util
@@ -31,8 +34,8 @@ def cli_store():
 def download_dataset(basedir, db, index, key):
     """List local store content."""
     # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    store = RefStore(basedir=basedir, loader=loader, connect_url=db)
     store.download(key)
 
 
@@ -43,9 +46,27 @@ def download_dataset(basedir, db, index, key):
 def list_datasets(basedir, db, index):
     """List local store content."""
     # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
-    util.print_datasets(store.list())
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    store = RefStore(basedir=basedir, loader=loader, connect_url=db)
+    datasets = store.list()
+    headers = ['Name', 'Size', 'Downloaded', 'Package']
+    data = list()
+    # Maintain the maximum with for each columns.
+    widths = [len(h) + 1 for h in headers]
+    # Sort datasets by name before output.
+    for dataset in sorted(datasets, key=lambda d: d.name):
+        row = [
+            dataset.identifier,
+            '{:.2a}'.format(DataSize(dataset.filesize)),
+            ' '.join(dataset.created_at.isoformat()[:19].split('T')),
+            '{} {}'.format(dataset.package_name, dataset.package_version)
+        ]
+        for i in range(len(row)):
+            w = len(row[i]) + 1
+            if w > widths[i]:
+                widths[i] = w
+        data.append(row)
+    tp.table(data, headers=headers, width=widths, style='grid', out=util.TPrinter())
 
 
 @cli_store.command(name='remove')
@@ -61,8 +82,8 @@ def remove_dataset(basedir, db, index, force, key):
         msg = "Do you really want to remove dataset '{}'".format(key)
         click.confirm(msg, default=True, abort=True)
     # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    store = RefStore(basedir=basedir, loader=loader, connect_url=db)
     store.remove(key)
 
 
@@ -75,6 +96,6 @@ def remove_dataset(basedir, db, index, force, key):
 def show_dataset(basedir, db, index, raw, key):
     """Show descriptor for downloaded dataset."""
     # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    store = RefStore(basedir=basedir, loader=loader, connect_url=db)
     util.print_dataset(dataset=store.open(key), raw=raw)

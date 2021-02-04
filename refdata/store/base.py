@@ -11,7 +11,7 @@ from pathlib import Path
 from pooch.core import stream_download
 from pooch.downloaders import choose_downloader
 
-from typing import Dict, List, Optional, Set, Tuple, Union
+from typing import Dict, List, Optional, Set, Union
 
 import os
 import pandas as pd
@@ -141,11 +141,12 @@ class LocalStore:
         dataset = self.open(key=key, auto_download=auto_download)
         return dataset.distinct(columns=columns)
 
-    def download(self, key: str) -> Tuple[str, Dict]:
-        """Download the dataset with the given (external) identifier. If no
-        dataset with that given key exists an error is raised. If the
-        dataset had been downloaded before the existing data file is
-        downloaded again.
+    def download(self, key: str) -> DatasetHandle:
+        """Download the dataset with the given (external) identifier.
+
+        Returns the handle for the downloaded dataset. If no dataset with that
+        given key exists an error is raised. If the dataset had been downloaded
+        before the data file is downloaded again.
 
         Returns the internal identifier and the descriptor (serialization) for
         the downloaded dataset.
@@ -157,15 +158,15 @@ class LocalStore:
 
         Returns
         -------
-        string, dict
+        refdata.dataset.base.DatasetHandle
 
         Raises
         ------
         refdata.error.UnknownDatasetError
         """
         # Get the dataset descriptor from the repository.
-        ds = self.repository().get(key=key)
-        if ds is None:
+        descriptor = self.repository().get(key=key)
+        if descriptor is None:
             raise err.UnknownDatasetError(key=key)
         # Get the internal dataset identifier if the dataset had been
         # downloaded before. If the dataset had not been downloaded an new
@@ -182,7 +183,7 @@ class LocalStore:
         # will raise an error if the checksum for the downloaded file does not
         # match the expected checksum from the repository index.
         dst = self._datafile(dataset_id)
-        download_file(dataset=ds, dst=dst)
+        download_file(dataset=descriptor, dst=dst)
         # Create entry for the downloaded dataset if it was downloaded for
         # the first time.
         if not ds_exists:
@@ -190,13 +191,12 @@ class LocalStore:
                 dataset = Dataset(
                     dataset_id=dataset_id,
                     key=key,
-                    descriptor=ds.to_dict(),
+                    descriptor=descriptor.to_dict(),
                     package_name=self.package_name,
-                    package_version=self.package_version,
-                    filesize=os.stat(dst).st_size
+                    package_version=self.package_version
                 )
                 session.add(dataset)
-        return dataset_id, ds.to_dict()
+        return self.open(key=key)
 
     def _get(self, session: SessionScope, key: str) -> Dataset:
         """Get the database object for the dataset with the given key. If
@@ -213,17 +213,25 @@ class LocalStore:
         """
         return session.query(Dataset).filter(Dataset.key == key).one_or_none()
 
-    def list(self) -> List[DatasetDescriptor]:
+    def list(self) -> List[DatasetHandle]:
         """Get the descriptors for all datasets that have been downloaded and
         are available from the local dataset store.
 
         Returns
         -------
-        list of refdata.base.DatasetDescriptor
+        list of refdata.dataset.base.DatasetHandle
         """
         with self.db.session() as session:
             datasets = session.query(Dataset).all()
-            return [DatasetDescriptor(ds.descriptor) for ds in datasets]
+            return [
+                DatasetHandle(
+                    descriptor=d.descriptor,
+                    package_name=d.package_name,
+                    package_version=d.package_version,
+                    created_at=d.created_at,
+                    datafile=self._datafile(d.dataset_id)
+                ) for d in datasets
+            ]
 
     def load(
         self, key: str, columns: Optional[List[str]] = None,
@@ -302,31 +310,32 @@ class LocalStore:
 
         Returns
         -------
-        refdata.dataset.DatasetHandle
+        refdata.dataset.base.DatasetHandle
 
         Raises
         ------
         refdata.error.NotDownloadedError
         """
-        # Get the identifier and descriptor for the dataset. Raises error
-        # if dataset has not been downloaded and auto_download is False.
-        dataset_id, descriptor = None, None
+        # Return the dataset handle if the dataset has been downloaded before.
         with self.db.session() as session:
             dataset = self._get(session=session, key=key)
             if dataset is not None:
-                dataset_id = dataset.dataset_id
-                descriptor = dataset.descriptor
+                return DatasetHandle(
+                    descriptor=dataset.descriptor,
+                    package_name=dataset.package_name,
+                    package_version=dataset.package_version,
+                    created_at=dataset.created_at,
+                    datafile=self._datafile(dataset.dataset_id)
+                )
         # Attempt to download if it does not exist in the local store and either
         # of the given auto_download flag or the class global auto_download is
-        # True.
-        if dataset_id is None:
-            download = auto_download if auto_download is not None else self.auto_download
-            if download:
-                dataset_id, descriptor = self.download(key=key)
-            else:
-                raise err.NotDownloadedError(key=key)
-        # Return handle for the dataset.
-        return DatasetHandle(doc=descriptor, datafile=self._datafile(dataset_id))
+        # True. Raises error if dataset has not been downloaded and
+        # auto_download is False.
+        download = auto_download if auto_download is not None else self.auto_download
+        if download:
+            return self.download(key=key)
+        else:
+            raise err.NotDownloadedError(key=key)
 
     def remove(self, key: str) -> bool:
         """Remove the dataset with the given (external) identifier from the

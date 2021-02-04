@@ -20,15 +20,13 @@ import refdata.error as err
 
 def test_download_dataset(store):
     """Test downloading datasets to the local store."""
-    dataset_id, descriptor = store.download(key='cities')
-    assert dataset_id is not None
-    assert descriptor['id'] == 'cities'
-    assert os.path.isfile(store._datafile(dataset_id))
+    dataset = store.download(key='cities')
+    assert dataset.identifier == 'cities'
+    assert os.path.isfile(dataset.datafile)
     # No issue downloading the datset again.
-    dataset_id, descriptor = store.download(key='cities')
-    assert dataset_id is not None
-    assert descriptor['id'] == 'cities'
-    assert os.path.isfile(store._datafile(dataset_id))
+    dataset = store.download(key='cities')
+    assert dataset.identifier == 'cities'
+    assert os.path.isfile(dataset.datafile)
     # Error when downloading unkown file.
     with pytest.raises(err.UnknownDatasetError):
         store.download(key='unknown')
@@ -74,8 +72,7 @@ def test_local_store_init(tmpdir):
                 key='my_key',
                 descriptor={'id': 'my_key'},
                 package_name='test',
-                package_version='1',
-                filesize=0
+                package_version='1'
             )
         )
     store = RefStore(basedir=basedir)
@@ -89,7 +86,6 @@ def test_local_store_init(tmpdir):
         assert ds.descriptor == {'id': 'my_key'}
         assert ds.package_name == 'test'
         assert ds.package_version == '1'
-        assert ds.filesize == 0
         assert ds.created_at is not None
     # Create the store with a connection string that points to the created
     # database.

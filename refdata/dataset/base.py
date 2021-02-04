@@ -9,9 +9,12 @@
 downloaded to the local data store.
 """
 
+from dateutil.parser import isoparse
 from typing import Dict, List, Optional, Set, Union
 
+import datetime
 import gzip
+import os
 import pandas as pd
 
 from refdata.base import DatasetDescriptor
@@ -26,19 +29,34 @@ class DatasetHandle(DatasetDescriptor):
     """Handle for a dataset in the local data store. Provides the functionality
     to read data in different formats from the downloaded data file.
     """
-    def __init__(self, doc: Dict, datafile: str):
+    def __init__(
+        self, descriptor: Dict, package_name: str, package_version: str,
+        created_at: datetime.datetime, datafile: str
+    ):
         """Initialize the descriptor information and the path to the downloaded
-        data file. This will also create an instance of the dataset loader that
-        is dependent on the dataset format.
+        data file.
+
+        This will also create an instance of the dataset loader that is used
+        for reading the data file dependent on the dataset format.
 
         Parameters
         ----------
-        doc: dict
+        descriptor: dict
             Dictionary serialization for the dataset descriptor.
+        package_name: string
+            Name of the package that downloaded the dataset.
+        package_version: string
+            Version information for the package that downloaded the dataset.
+        created_at: str
+            Timestamp (in UTC) when the dataset was downloaded.
         datafile: string
             Path to the downloaded file.
         """
-        super(DatasetHandle, self).__init__(doc=doc)
+        super(DatasetHandle, self).__init__(doc=descriptor)
+        self.package_name = package_name
+        self.package_version = package_version
+        # Convert the timestamp from UTC to local time.
+        self.created_at = isoparse(created_at).astimezone()
         self.datafile = datafile
         # Create the format-dependent instance of the dataset loader.
         parameters = self.format
@@ -102,6 +120,10 @@ class DatasetHandle(DatasetDescriptor):
         # Ensure that columns are a list.
         columns = columns if isinstance(columns, list) else [columns]
         return self.load(columns=columns, consumer=DistinctSetGenerator()).to_set()
+
+    @property
+    def filesize(self) -> int:
+        return os.stat(self.datafile).st_size
 
     def load(self, columns: List[str], consumer: DataConsumer) -> DataConsumer:
         """Load data for the specified columns from the downloaded dataset

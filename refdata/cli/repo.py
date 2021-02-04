@@ -8,7 +8,9 @@
 """Commands that interact with a repository index."""
 
 import click
+import tableprint as tp
 
+from refdata.repo.loader import DictLoader, UrlLoader
 from refdata.repo.manager import RepositoryManager
 from refdata.repo.schema import validate
 
@@ -27,9 +29,24 @@ def cli_repo():
 @click.option('-i', '--index', required=False, help='Repository index file')
 def list_repository(index):
     """List repository index content."""
-    # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    util.print_datasets(RepositoryManager(doc=doc).find())
+    # Read the index from the optional file or Url. By default, the index that
+    # is specified in the environment is loaded.
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    datasets = RepositoryManager(doc=loader.load()).find()
+    headers = ['Identifier', 'Name', 'Description']
+    data = list()
+    # Maintain the maximum with for each columns.
+    widths = [len(h) + 1 for h in headers]
+    # Sort datasets by name before output.
+    for dataset in sorted(datasets, key=lambda d: d.name):
+        desc = dataset.description if dataset.description is not None else ''
+        row = [dataset.identifier, dataset.name, desc]
+        for i in range(len(row)):
+            w = len(row[i]) + 1
+            if w > widths[i]:
+                widths[i] = w
+        data.append(row)
+    tp.table(data, headers=headers, width=widths, style='grid', out=util.TPrinter())
 
 
 @cli_repo.command(name='show')
@@ -38,9 +55,10 @@ def list_repository(index):
 @click.argument('key')
 def show_dataset(index, raw, key):
     """Show dataset descriptor from repository index."""
-    # Read the index of given.
-    doc = util.read_index(index) if index is not None else None
-    util.print_dataset(dataset=RepositoryManager(doc=doc).get(key), raw=raw)
+    # Read the index from the optional file or Url. By default, the index that
+    # is specified in the environment is loaded.
+    loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
+    util.print_dataset(dataset=RepositoryManager(doc=loader.load()).get(key), raw=raw)
 
 
 @cli_repo.command(name='validate')
