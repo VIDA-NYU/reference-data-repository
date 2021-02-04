@@ -9,10 +9,11 @@
 metadata management.
 """
 
-import datetime
 import json
 import uuid
 
+from datetime import datetime
+from dateutil.tz import UTC
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -62,7 +63,7 @@ def local_time() -> str:
     -------
     string
     """
-    return datetime.datetime.now().isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 class Dataset(Base):
@@ -83,7 +84,7 @@ class Dataset(Base):
     descriptor = Column(JsonObject, nullable=False)
     package_name = Column(String(256), nullable=False)
     package_version = Column(String(256), nullable=False)
-    created_at = Column(String(26), default=local_time, nullable=False)
+    created_at = Column(String(32), default=local_time, nullable=False)
     filesize = Column(Integer, nullable=False)
 
 
