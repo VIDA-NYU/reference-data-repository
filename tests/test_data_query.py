@@ -10,7 +10,8 @@
 import pytest
 
 from refdata.base import DatasetDescriptor
-from refdata.repo import RepositoryManager
+from refdata.repo.loader import UrlLoader
+from refdata.repo.manager import RepositoryManager
 
 
 """Dataset for single dataset match tests."""
@@ -66,6 +67,6 @@ def test_dataset_query(query, result):
 )
 def test_repository_query(query, result, mock_response):
     """Test querying the text repository."""
-    repo = RepositoryManager()
+    repo = RepositoryManager(doc=UrlLoader().load())
     datasets = [ds.identifier for ds in repo.find(filter=query)]
     assert datasets == result

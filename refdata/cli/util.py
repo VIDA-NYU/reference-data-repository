@@ -13,10 +13,9 @@ from typing import Dict, List
 
 import click
 import json
-import os
 
 from refdata.base import DatasetDescriptor
-from refdata.repo import download_index
+from refdata.repo.loader import FileLoader, UrlLoader
 
 
 def print_datasets(datasets: List[DatasetDescriptor]):
@@ -88,8 +87,11 @@ def print_dataset(dataset: DatasetDescriptor, raw: bool):
 
 
 def read_index(filename: str) -> Dict:
-    """Read a repository index file. The filename may either reference a file
-    on the local file system or is expected to be an Url.
+    """Read a repository index file.
+
+    The filename may either reference a file on the local file system or is
+    expected to be an Url. Attempts to read a file first and then load the
+    Url if an error occured while loading the file.
 
     Parameters
     ----------
@@ -101,8 +103,7 @@ def read_index(filename: str) -> Dict:
     dict
     """
     try:
-        with open(filename, 'r') as f:
-            return json.load(f)
-    except OSError as ex:
-        print(ex)
-    return download_index(url=filename)
+        return FileLoader(filename).load()
+    except (IOError, OSError):
+        pass
+    return UrlLoader(url=filename).load()

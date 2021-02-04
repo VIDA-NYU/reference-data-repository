@@ -9,7 +9,7 @@
 
 import click
 
-from refdata.repo import RepositoryManager
+from refdata.repo.loader import DictLoader
 from refdata.store.base import RefStore
 
 import refdata.cli.util as util
@@ -32,7 +32,7 @@ def download_dataset(basedir, db, index, key):
     """List local store content."""
     # Read the index of given.
     doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
     store.download(key)
 
 
@@ -44,7 +44,7 @@ def list_datasets(basedir, db, index):
     """List local store content."""
     # Read the index of given.
     doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
     util.print_datasets(store.list())
 
 
@@ -62,7 +62,7 @@ def remove_dataset(basedir, db, index, force, key):
         click.confirm(msg, default=True, abort=True)
     # Read the index of given.
     doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
     store.remove(key)
 
 
@@ -76,5 +76,5 @@ def show_dataset(basedir, db, index, raw, key):
     """Show descriptor for downloaded dataset."""
     # Read the index of given.
     doc = util.read_index(index) if index is not None else None
-    store = RefStore(basedir=basedir, repo=RepositoryManager(doc=doc), connect_url=db)
+    store = RefStore(basedir=basedir, loader=DictLoader(doc=doc), connect_url=db)
     util.print_dataset(dataset=store.open(key), raw=raw)

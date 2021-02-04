@@ -5,6 +5,10 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
+"""Base classes for handles that provide access to datasets that have been
+downloaded to the local data store.
+"""
+
 from typing import Dict, List, Optional, Set, Union
 
 import gzip

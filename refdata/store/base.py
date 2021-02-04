@@ -19,7 +19,8 @@ import pandas as pd
 from refdata.base import DatasetDescriptor
 from refdata.dataset.base import DatasetHandle
 from refdata.db import Dataset, DATASET_ID, DB, SessionScope
-from refdata.repo import RepositoryManager
+from refdata.repo.loader import RepositoryIndexLoader, UrlLoader
+from refdata.repo.manager import RepositoryManager
 from refdata.version import __version__
 
 import refdata.config as config
@@ -37,7 +38,7 @@ class LocalStore:
     """
     def __init__(
         self, package_name: str, package_version: str,
-        basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
+        basedir: Optional[str] = None, loader: Optional[RepositoryIndexLoader] = None,
         auto_download: Optional[bool] = None, connect_url: Optional[str] = None
     ):
         """Initialize the base directory on the file system where downloaded
@@ -59,8 +60,10 @@ class LocalStore:
             directory that is specified in the environment variable REFDATA_BASEDIR
             is used. If the environment variable is not set an directory under
             the OS-specific users cache data directory is used.
-        repo: refdata.repo.RepositoryManager, default=None
-            Associated repository manager.
+        loader: refdata.repo.loader.RepositoryIndexLoader, default=None
+            Loader for a dataset repository index. the loaded index is used to
+            create an instance of the repository manager that is associated with
+            the local data store for downloading datasets.
         auto_download: bool, default=None
             If auto download is enabled (True) datasets are downloaded automatically
             when they are first accessed via `.open()`. If this option is not
@@ -79,9 +82,11 @@ class LocalStore:
         # Create the base directory if it does not exist.
         self.basedir = basedir if basedir else config.BASEDIR()
         os.makedirs(self.basedir, exist_ok=True)
-        # Set the repository manager. If no manager is given it will be
-        # instantiated when it is first accessed.
-        self.repo = repo
+        # Set the repository loader. The repository manager will be instantiated
+        # when it is first accessed. If no loader is given the default dataset
+        # index will be loaded for the associated repository manager instance.
+        self.loader = loader if loader is not None else UrlLoader()
+        self.repo = None
         # Set the auto download option. Read REFDATA_AUTODOWNLOAD if not no
         # argument value was given. The default is False.
         self.auto_download = auto_download if auto_download is not None else config.AUTO_DOWNLOAD()
@@ -359,7 +364,7 @@ class LocalStore:
         # given when the store was created and this is the firat access to
         # the manager.
         if self.repo is None:
-            self.repo = RepositoryManager()
+            self.repo = RepositoryManager(doc=self.loader.load())
         return self.repo
 
 
@@ -369,7 +374,7 @@ class RefStore(LocalStore):
     instance.
     """
     def __init__(
-        self, basedir: Optional[str] = None, repo: Optional[RepositoryManager] = None,
+        self, basedir: Optional[str] = None, loader: Optional[RepositoryIndexLoader] = None,
         auto_download: Optional[bool] = None, connect_url: Optional[str] = None
     ):
         """Initialize the store properties.
@@ -381,8 +386,10 @@ class RefStore(LocalStore):
             directory that is specified in the environment variable REFDATA_BASEDIR
             is used. If the environment variable is not set an directory under
             the OS-specific users cache data directory is used.
-        repo: refdata.repo.RepositoryManager, default=None
-            Associated repository manager.
+        loader: refdata.repo.loader.RepositoryIndexLoader, default=None
+            Loader for a dataset repository index. the loaded index is used to
+            create an instance of the repository manager that is associated with
+            the local data store for downloading datasets.
         auto_download: bool, default=None
             If auto download is enabled (True) datasets are downloaded automatically
             when they are first accessed via `.open()`. If this option is not
@@ -400,7 +407,7 @@ class RefStore(LocalStore):
             package_name=__name__.split('.')[0],
             package_version=__version__,
             basedir=basedir,
-            repo=repo,
+            loader=loader,
             auto_download=auto_download,
             connect_url=connect_url
         )

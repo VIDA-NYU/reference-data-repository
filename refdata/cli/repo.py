@@ -9,7 +9,8 @@
 
 import click
 
-from refdata.repo import RepositoryManager, validate
+from refdata.repo.manager import RepositoryManager
+from refdata.repo.schema import validate
 
 import refdata.cli.util as util
 
