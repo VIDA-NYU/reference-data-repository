@@ -15,6 +15,9 @@ def test_load_distinct(store):
     values = store.load(key='cities', auto_download=True).distinct(columns='state')
     assert len(values) == 1
     assert 'Alabama' in values
+    values = store.load(key='cities').distinct(columns='state', transformer=str.lower)
+    assert len(values) == 1
+    assert 'alabama' in values
     values = store.load(key='cities').distinct()
     assert len(values) == 7
 

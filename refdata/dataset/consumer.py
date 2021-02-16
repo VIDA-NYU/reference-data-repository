@@ -10,7 +10,7 @@ different types of data objects from a dataset in the data store.
 """
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set
 
 import pandas as pd
 
@@ -114,9 +114,18 @@ class DistinctSetGenerator(DataConsumer):
     If the loader is reading multiple columns, a tuple of values is generated
     for each row before adding it to the set of distinct values.
     """
-    def __init__(self):
-        """Initialize the empty set of distinct values."""
+    def __init__(self, transformer: Optional[Callable] = None):
+        """Initialize the empty set of distinct values and the optional value
+        transformer.
+
+        Parameters
+        ----------
+        transformer: callable, default=None
+            Optional transformer function that is evaluated on column values
+            before adding them to the set of distinct values.
+        """
         self.values = set()
+        self.transformer = transformer
 
     def consume(self, row: List):
         """Add the given row to the internal set of distinct values.
@@ -132,7 +141,7 @@ class DistinctSetGenerator(DataConsumer):
             List of column values for row in a dataset that is being read
             by a dataset loader.
         """
-        self.values.add(to_value(row))
+        self.values.add(to_value(row=row, transformer=self.transformer))
 
     def to_set(self) -> Set:
         """Get the set of distinct values that has been created by the consumer
@@ -219,10 +228,13 @@ class MappingGenerator(DataConsumer):
 
 # -- Helper Functions ---------------------------------------------------------
 
-def to_value(row: List) -> Any:
-    """Convert a given list of values into a scalar value or tuple. If the given
-    list contains a single element that element is returned. Otherwise, a tuple
-    of the values in the list is returned.
+def to_value(row: List, transformer: Optional[Callable] = None) -> Any:
+    """Convert a given list of values into a scalar value or tuple.
+
+    If the given list contains a single element that element is returned.
+    Otherwise, a tuple of the values in the list is returned.
+
+    The optional tranformer is applied to all list values individually.
 
     Parameters
     ----------
@@ -233,4 +245,5 @@ def to_value(row: List) -> Any:
     -------
     any
     """
+    row = row if transformer is None else list(map(transformer, row))
     return row[0] if len(row) == 1 else tuple(row)

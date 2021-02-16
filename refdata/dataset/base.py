@@ -10,7 +10,7 @@ downloaded to the local data store.
 """
 
 from dateutil.parser import isoparse
-from typing import Dict, IO, List, Optional, Set, Union
+from typing import Callable, Dict, IO, List, Optional, Set, Union
 
 import datetime
 import gzip
@@ -93,7 +93,10 @@ class DatasetHandle(DatasetDescriptor):
         consumer = DataFrameGenerator(columns=columns)
         return self.load(columns=columns, consumer=consumer).to_df()
 
-    def distinct(self, columns: Optional[Union[str, List[str]]] = None) -> Set:
+    def distinct(
+        self, columns: Optional[Union[str, List[str]]] = None,
+        transformer: Optional[Callable] = None
+    ) -> Set:
         """Get the set of distinct values from the specified column(s) in the
         dataset.
 
@@ -104,11 +107,18 @@ class DatasetHandle(DatasetDescriptor):
         If more than one column is specified the elements in the returned set
         are tuples of values.
 
+        If the optional transformer is given it will be evaluated on the individual
+        values that are extracted from the columns before adding them to the set
+        of unique values.
+
         Parameters
         ----------
         columns: string or list of string, default=None
             Column identifier defining the values that are added to the
             generated set of distinct values.
+        transformer: callable, default=None
+            Optional transformer function that is evaluated on column values
+            before adding them to the set of distinct values.
 
         Returns
         -------
@@ -119,7 +129,8 @@ class DatasetHandle(DatasetDescriptor):
         columns = columns if columns is not None else [c.identifier for c in self.columns]
         # Ensure that columns are a list.
         columns = columns if isinstance(columns, list) else [columns]
-        return self.load(columns=columns, consumer=DistinctSetGenerator()).to_set()
+        consumer = DistinctSetGenerator(transformer=transformer)
+        return self.load(columns=columns, consumer=consumer).to_set()
 
     @property
     def filesize(self) -> int:
