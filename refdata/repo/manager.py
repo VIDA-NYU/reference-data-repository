@@ -9,17 +9,9 @@
 available for download in the Reference Data Repository.
 """
 
-from jsonschema import Draft7Validator, RefResolver
 from typing import Dict, List, Optional, Set, Union
 
-import importlib.resources as pkg_resources
-import os
-import requests
-import yaml
-
 from refdata.base import DatasetDescriptor
-
-import refdata.config as config
 
 
 class RepositoryManager:
@@ -28,10 +20,8 @@ class RepositoryManager:
     By default, the index that the environment variable REFDATA_URL or
     its default value points to is read.
     """
-    def __init__(self, doc: Optional[Dict] = None):
-        """Initialize the index of dataset descriptors. If no data is provided
-        it is read from the value that the environment variable REFDATA_URL
-        points to.
+    def __init__(self, doc: Dict):
+        """Initialize the index of dataset descriptors.
 
         Parameters
         ----------
@@ -39,19 +29,11 @@ class RepositoryManager:
             Dictionary containing the dataset index. This dictionary is
             expected to follow the `RepositoryIndex` schema.
         """
-        # Read the default index if no data was given.
-        doc = doc if doc is not None else download_index(url=config.URL())
         # Create dataset index for entries in the read document.
         self.datasets = dict()
         for obj in doc.get('datasets', list()):
             ds = DatasetDescriptor(obj)
             self.datasets[ds.identifier] = ds
-        # Read additional repositories that may be specified in the main
-        # document.
-        for url in doc.get('repositories', list()):
-            for obj in download_index(url=url).get('datasets', list()):
-                ds = DatasetDescriptor(obj)
-                self.datasets[ds.identifier] = ds
 
     def find(self, filter: Optional[Union[str, List[str], Set[str]]] = None) -> List[DatasetDescriptor]:
         """Query the dataset index. The filter is a single tag or a list of
@@ -98,55 +80,3 @@ class RepositoryManager:
         refdata.base.DatasetDescriptor
         """
         return self.datasets.get(key)
-
-
-# -- Helper Functions ---------------------------------------------------------
-
-def download_index(url: str) -> Dict:
-    """Download the repository index file from the given Url.
-
-    Parameters
-    ----------
-    url: string
-        Url pointing to the repository index document.
-
-    Returns
-    -------
-    dict
-    """
-    r = requests.get(url)
-    r.raise_for_status()
-    return r.json()
-
-
-"""Create schema validator for the repository index file."""
-# Make sure that the path to the schema file is a valid URI. Otherwise, errors
-# occur (at least on MS Windows environments). Changed based on:
-# https://github.com/Julian/jsonschema/issues/398#issuecomment-385130094
-schemafile = 'file:///{}'.format(os.path.abspath(os.path.join(__file__, 'schema.yaml')))
-schema = yaml.safe_load(pkg_resources.open_text(__package__, 'schema.yaml'))
-resolver = RefResolver(schemafile, schema)
-
-
-def validate(doc: Dict) -> Draft7Validator:
-    """Validate the schema for a repository index document.
-
-    The given document is a dictionary containing the repository index. An
-    error is raised if the referenced document does not satisfy the defined
-    repository index schema.
-
-
-    Parameters
-    ----------
-    doc: dict
-        Repository index document.
-
-    Raises
-    ------
-    jsonschema.exceptions.ValidationError
-    """
-    validator = Draft7Validator(
-        schema=schema['definitions']['RepositoryIndex'],
-        resolver=resolver
-    )
-    validator.validate(doc)

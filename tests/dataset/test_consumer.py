@@ -9,7 +9,8 @@
 
 import pytest
 
-from refdata.loader.consumer import DataFrameGenerator, DistinctSetGenerator, MappingGenerator
+from refdata.dataset.consumer import DataFrameGenerator, DistinctSetGenerator, MappingGenerator
+from refdata.dataset.consumer import to_value
 
 
 # List of rows for test purposes.
@@ -78,3 +79,10 @@ def test_mapping_generator():
     assert mapping[('alice', 'smith')] == 23
     assert mapping[('alice', 'jones')] == 25
     assert mapping[('bob', 'jackson')] == 24
+
+
+def test_value_transformer():
+    """Test transformation of list values with optional transformer function."""
+    values = ['A', 'B']
+    assert to_value(row=values) == ('A', 'B')
+    assert to_value(row=values, transformer=str.lower) == ('a', 'b')

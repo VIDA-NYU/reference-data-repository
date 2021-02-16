@@ -1,9 +1,12 @@
 future
 appdirs>=1.4.4
 pandas>=1.0.0
+python-dateutil
+datasize>=1.0.0
 pyyaml>=5.1
 jsonschema
 SQLAlchemy>=1.3.18
 pooch>=1.3.0
 requests
 Click>=7.0.0
+tableprint

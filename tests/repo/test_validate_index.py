@@ -5,20 +5,13 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
-"""Unit tests for the dataset repository."""
+"""Unit tests for the repository index schema validator."""
 
 from jsonschema.exceptions import ValidationError
 
 import pytest
 
-from refdata.repo import RepositoryManager, download_index, validate
-
-
-def test_get_dataset(mock_response):
-    """Test getting a dataset from the test repository."""
-    repo = RepositoryManager()
-    assert repo.get(key='DS1').identifier == 'DS1'
-    assert repo.get(key='UNKNOWN') is None
+from refdata.repo.schema import validate
 
 
 @pytest.mark.parametrize(
@@ -55,15 +48,40 @@ def test_get_dataset(mock_response):
         }
     ]
 )
-def test_invalid_repository_index(doc, mock_response):
+def test_invalid_repository_index(doc):
     """Test error for invalid repository index documents."""
     with pytest.raises(ValidationError):
         validate(doc)
 
 
-def test_read_linked_index(mock_response):
-    """Test validating a 'downloaded' repository index document."""
-    repo = RepositoryManager(doc=download_index(url='multi-index.json'))
-    assert len(repo.find()) == 3
-    assert repo.get('us_cities') is not None
-    assert repo.get('cities') is not None
+@pytest.mark.parametrize(
+    'doc',
+    [
+        {
+            'datasets': [
+                {
+                    'id': '0000',
+                    'url': 'xyz.com',
+                    'checksum': '0',
+                    'schema': [{'id': 'C1'}],
+                    'format': {'type': 'csv', 'parameters': {}}
+                }
+            ]
+        },
+        {
+            'datasets': [
+                {
+                    'id': '0000',
+                    'url': 'xyz.com',
+                    'checksum': '0',
+                    'schema': [{'id': 'C1'}],
+                    'format': {'type': 'csv', 'parameters': {}}
+                }
+            ],
+            'repositories': ['abc.org']
+        }
+    ]
+)
+def test_valid_repository_index(doc):
+    """Test correct validation for valid repository index documents."""
+    validate(doc)

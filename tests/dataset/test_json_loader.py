@@ -9,9 +9,10 @@
 
 import pytest
 
-from refdata.loader.consumer import DataCollector
-from refdata.loader.json_loader import JQuery
-from refdata.store.dataset import DatasetHandle
+from refdata.dataset.base import DatasetHandle
+from refdata.dataset.consumer import DataCollector
+from refdata.dataset.json_loader import JQuery
+from refdata.db import local_time
 
 
 # -- Loader -------------------------------------------------------------------
@@ -60,7 +61,13 @@ DESCRIPTOR = {
 def test_json_loader(parameters, columns, first_row, countries_file, mock_response):
     descriptor = dict(DESCRIPTOR)
     descriptor['format'] = parameters
-    dataset = DatasetHandle(doc=descriptor, datafile=countries_file)
+    dataset = DatasetHandle(
+        descriptor=descriptor,
+        package_name='test',
+        package_version='0',
+        created_at=local_time(),
+        datafile=countries_file
+    )
     data = dataset.load(columns=columns, consumer=DataCollector()).data
     assert len(data) == 2
     assert data[0] == first_row

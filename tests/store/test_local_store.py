@@ -7,26 +7,27 @@
 
 """Unit tests for the local datastore."""
 
+import json
 import os
 import pytest
 
 from refdata.db import Dataset
-from refdata.store import LocalStore, download_file
+from refdata.store import LocalStore, RefStore, download_file
+from refdata.version import __version__
 
+import refdata
 import refdata.error as err
 
 
 def test_download_dataset(store):
     """Test downloading datasets to the local store."""
-    dataset_id, descriptor = store.download(key='cities')
-    assert dataset_id is not None
-    assert descriptor['id'] == 'cities'
-    assert os.path.isfile(store._datafile(dataset_id))
+    dataset = store.download(key='cities')
+    assert dataset.identifier == 'cities'
+    assert os.path.isfile(dataset.datafile)
     # No issue downloading the datset again.
-    dataset_id, descriptor = store.download(key='cities')
-    assert dataset_id is not None
-    assert descriptor['id'] == 'cities'
-    assert os.path.isfile(store._datafile(dataset_id))
+    dataset = store.download(key='cities')
+    assert dataset.identifier == 'cities'
+    assert os.path.isfile(dataset.datafile)
     # Error when downloading unkown file.
     with pytest.raises(err.UnknownDatasetError):
         store.download(key='unknown')
@@ -53,27 +54,58 @@ def test_listing_dataset_in_local_store(store):
     assert 'countries' in datasets
 
 
+def test_load_dataset(store):
+    """Test opening a downloaded dataset."""
+    store.download(key='cities')
+    assert store.load('cities').identifier == 'cities'
+    # Error when opening a dataset that has not been downloaded and is not
+    # downloaded automatically.
+    with pytest.raises(err.NotDownloadedError):
+        store.load('countries')
+    with pytest.raises(err.NotDownloadedError):
+        store.load('countries', auto_download=False)
+    # The dataset can be opened if the auto_download flag is True.
+    assert store.load('countries', auto_download=True).identifier == 'countries'
+
+
 def test_local_store_init(tmpdir):
     """Test different scenarios for database creation when initializing the
     local store.
     """
     # First without connection url and no existing database.
     basedir = os.path.join(tmpdir, 'test')
-    store = LocalStore(basedir=basedir)
+    store = LocalStore(package_name='test', package_version='test.1', basedir=basedir)
+    assert store.package_name == 'test'
+    assert store.package_version == 'test.1'
     assert os.path.join(basedir, 'refdata.db')
     # A seocond call should not re-create the database. To validate this we
     # create a new dataset and ensure that after re-creating the store that
     # the database is not empty.
     with store.db.session() as session:
-        session.add(Dataset(key='my_key', descriptor={'id': 'my_key'}))
-    store = LocalStore(basedir=basedir)
+        session.add(
+            Dataset(
+                key='my_key',
+                descriptor={'id': 'my_key'},
+                package_name='test',
+                package_version='1'
+            )
+        )
+    store = RefStore(basedir=basedir)
+    assert store.package_name == refdata.__name__.split('.')[0]
+    assert store.package_version == __version__
     with store.db.session() as session:
         datasets = session.query(Dataset).all()
         assert len(datasets) == 1
+        ds = datasets[0]
+        assert ds.key == 'my_key'
+        assert ds.descriptor == {'id': 'my_key'}
+        assert ds.package_name == 'test'
+        assert ds.package_version == '1'
+        assert ds.created_at is not None
     # Create the store with a connection string that points to the created
     # database.
     dbfile = os.path.join(basedir, 'refdata.db')
-    store = LocalStore(basedir=basedir, connect_url='sqlite:///{}'.format(dbfile))
+    store = RefStore(basedir=basedir, connect_url='sqlite:///{}'.format(dbfile))
     with store.db.session() as session:
         datasets = session.query(Dataset).all()
         assert len(datasets) == 1
@@ -84,7 +116,7 @@ def test_local_store_repo_manager(mock_response, tmpdir):
     """
     # First without connection url and no existing database.
     basedir = os.path.join(tmpdir, 'test')
-    store = LocalStore(basedir=basedir)
+    store = RefStore(basedir=basedir)
     # Ensure that the default test repository was created.
     assert len(store.repository().find()) == 3
     # Hack to ensure that the manager is created only once.
@@ -92,18 +124,11 @@ def test_local_store_repo_manager(mock_response, tmpdir):
     assert len(store.repository().find()) == 0
 
 
-def test_open_dataset(store):
-    """Test opening a downloaded dataset."""
-    store.download(key='cities')
-    assert store.open('cities').identifier == 'cities'
-    # Error when opening a dataset that has not been downloaded and is not
-    # downloaded automatically.
-    with pytest.raises(err.NotDownloadedError):
-        store.open('countries')
-    with pytest.raises(err.NotDownloadedError):
-        store.open('countries', auto_download=False)
-    # The dataset can be opened if the auto_download flag is True.
-    assert store.open('countries', auto_download=True).identifier == 'countries'
+def test_read_dataset(store):
+    """Test reading a dataset using the open() method."""
+    with store.open(key='countries', auto_download=True) as f:
+        doc = json.load(f)
+    assert len(doc) == 2
 
 
 def test_remove_dataset(store):

@@ -1,0 +1,56 @@
+datasets:
+- checksum: 8d4c77b84cbe8c6683bbfa9f58c8268455f820b98289b51955dcef87b1d48d60
+  compression: gzip
+  description: Names of cities in the U.S. from the Encyclopaedia Britannica.
+  format:
+    parameters:
+      delim: "\t"
+    type: csv
+  id: cities
+  name: Cities in the U.S.
+  schema:
+  - description: City Name
+    dtype: text
+    id: city
+    name: City
+  - description: U.S. State Name
+    dtype: text
+    id: state
+    name: State
+  url: http://cities.tsv.gz
+  webpage: https://www.britannica.com/topic/list-of-cities-and-towns-in-the-United-States-2023068
+- checksum: 889c264f2ac4629b4998aa8b8b1d4de45890c39c10e24cfd8a017e9924e805c7
+  description: Information about countries in the world available from the restcountries.eu
+    project.
+  format:
+    parameters: {}
+    type: json
+  id: countries
+  name: REST Countries
+  schema:
+  - description: Country name
+    dtype: text
+    id: name
+    name: Name
+  - description: ISO 3166-1 2-letter country code
+    dtype: text
+    id: alpha2Code
+    name: Country Code (2-letters)
+  - description: ISO 3166-1 3-letter country code
+    dtype: text
+    id: alpha3Code
+    name: Country Code (3-letters)
+  - description: Capital city
+    dtype: text
+    id: capital
+    name: Capital
+  - description: World region
+    dtype: text
+    id: region
+    name: Region
+  - description: Sub-region within the country region
+    dtype: text
+    id: subregion
+    name: Sub-Region
+  url: http://countries.json
+  webpage: https://restcountries.eu/

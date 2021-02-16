@@ -11,8 +11,8 @@ from typing import IO, List
 
 import csv
 
-from refdata.loader.base import DatasetLoader
-from refdata.loader.consumer import DataConsumer
+from refdata.dataset.loader import DatasetLoader
+from refdata.dataset.consumer import DataConsumer
 from refdata.base import FormatDescriptor
 
 
@@ -65,12 +65,12 @@ class CSVLoader(DatasetLoader):
             Open file object.
         columns: list of string
             Identifier of columns that are contained in the output.
-        consumer: refdata.loader.consumer.DataConsumer
+        consumer: refdata.dataset.consumer.DataConsumer
             Consumer for data rows that are being read.
 
         Returns
         -------
-        refdata.loader.consumer.DataConsumer
+        refdata.dataset.consumer.DataConsumer
         """
         reader = csv.reader(file, delimiter=self.delim)
         # Skip the first row the it contains the dataset header.

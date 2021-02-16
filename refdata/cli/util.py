@@ -9,41 +9,22 @@
 line interface.
 """
 
-from typing import Dict, List
+from typing import Dict
 
 import click
 import json
-import os
 
 from refdata.base import DatasetDescriptor
-from refdata.repo import download_index
+from refdata.repo.loader import FileLoader, UrlLoader
 
 
-def print_datasets(datasets: List[DatasetDescriptor]):
-    """Print a listing of datasets to the console.
+class TPrinter:
+    """Wrapper around `click.echo` for table printing."""
+    def write(self, s):
+        click.echo(s)
 
-    Outputs the identifier, name and description for each dataset in the given
-    list. Datasets are sorted by their name.
-
-    Parameters
-    ----------
-    datasets: list of refdata.base.DatasetDescriptor
-        List of dataset descriptors.
-    """
-    # Compute maximal length of values for the dataset identifier, name and
-    # description. The length values are used to align the output.
-    id_len = max([len(d.identifier) for d in datasets] + [10])
-    name_len = max([len(d.name) for d in datasets] + [4])
-    desc_len = max([len(d.description) for d in datasets if d.description is not None] + [11])
-    # Create the output template with all values left aligned.
-    template = '{:<' + str(id_len) + '} | {:<' + str(name_len) + '} | {:<' + str(desc_len) + '}'
-    click.echo()
-    click.echo(template.format('Identifier', 'Name', 'Description'))
-    click.echo(template.format('-' * id_len, '-' * name_len, '-' * desc_len))
-    # Sort datasets by name before output.
-    for dataset in sorted(datasets, key=lambda d: d.name):
-        desc = dataset.description if dataset.description is not None else ''
-        click.echo(template.format(dataset.identifier, dataset.name, desc))
+    def flush(self):
+        pass
 
 
 def print_dataset(dataset: DatasetDescriptor, raw: bool):
@@ -88,8 +69,11 @@ def print_dataset(dataset: DatasetDescriptor, raw: bool):
 
 
 def read_index(filename: str) -> Dict:
-    """Read a repository index file. The filename may either reference a file
-    on the local file system or is expected to be an Url.
+    """Read a repository index file.
+
+    The filename may either reference a file on the local file system or is
+    expected to be an Url. Attempts to read a file first and then load the
+    Url if an error occured while loading the file.
 
     Parameters
     ----------
@@ -101,8 +85,7 @@ def read_index(filename: str) -> Dict:
     dict
     """
     try:
-        with open(filename, 'r') as f:
-            return json.load(f)
-    except OSError as ex:
-        print(ex)
-    return download_index(url=filename)
+        return FileLoader(filename).load()
+    except (IOError, OSError):
+        pass
+    return UrlLoader(url=filename).load()

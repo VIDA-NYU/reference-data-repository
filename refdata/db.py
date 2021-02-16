@@ -12,6 +12,8 @@ metadata management.
 import json
 import uuid
 
+from datetime import datetime
+from dateutil.tz import UTC
 from sqlalchemy import Column, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -54,12 +56,25 @@ class JsonObject(TypeDecorator):
         return json.loads(value)
 
 
+def local_time() -> str:
+    """Get the current time as a string in ISO format.
+
+    Returns
+    -------
+    string
+    """
+    return datetime.now(UTC).isoformat()
+
+
 class Dataset(Base):
     """Descriptor for dataset that has been downloaded to the local data store.
     Each dataset has two identifier, (i) the identifier that is part of the
     dataset descriptor (`key`), and (ii) an internal identifier (`dataset_id`).
     Users will reference datasets by their key. The internal dataset identifier
     specifies the subfolder under which the dataset files are stored.
+
+    With each downloaded dataset we maintain a reference to the package that
+    created the local store instance an initiated the download.
     """
     # -- Schema ---------------------------------------------------------------
     __tablename__ = 'dataset'
@@ -67,6 +82,9 @@ class Dataset(Base):
     dataset_id = Column(String(32), default=DATASET_ID, primary_key=True)
     key = Column(String(1024), nullable=False, unique=True)
     descriptor = Column(JsonObject, nullable=False)
+    package_name = Column(String(256), nullable=False)
+    package_version = Column(String(256), nullable=False)
+    created_at = Column(String(32), default=local_time, nullable=False)
 
 
 # -- Database Object ----------------------------------------------------------

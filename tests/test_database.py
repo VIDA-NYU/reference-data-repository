@@ -31,13 +31,34 @@ def test_database_session():
     db.init()
     # -- Tests ----------------------------------------------------------------
     with db.session() as session:
-        session.add(Dataset(key='my_key', descriptor={'id': 'my_key'}))
+        session.add(
+            Dataset(
+                key='my_key',
+                descriptor={'id': 'my_key'},
+                package_name='test',
+                package_version='1'
+            )
+        )
     with db.session() as session:
-        session.add(Dataset(key='a_key', descriptor={'id': 'a_key'}))
+        session.add(
+            Dataset(
+                key='a_key',
+                descriptor={'id': 'a_key'},
+                package_name='test',
+                package_version='1'
+            )
+        )
     with db.session() as session:
         datasets = session.query(Dataset).all()
         assert len(datasets) == 2
     # Error when creating an entry with duplicate key.
     with pytest.raises(IntegrityError):
         with db.session() as session:
-            session.add(Dataset(key='my_key', descriptor={'id': 'my_key'}))
+            session.add(
+                Dataset(
+                    key='my_key',
+                    descriptor={'id': 'my_key'},
+                    package_name='test',
+                    package_version='1'
+                )
+            )
