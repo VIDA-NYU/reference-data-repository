@@ -7,6 +7,7 @@
 
 """Unit tests for the local datastore."""
 
+import json
 import os
 import pytest
 
@@ -51,6 +52,20 @@ def test_listing_dataset_in_local_store(store):
     assert len(datasets) == 2
     assert 'cities' in datasets
     assert 'countries' in datasets
+
+
+def test_load_dataset(store):
+    """Test opening a downloaded dataset."""
+    store.download(key='cities')
+    assert store.load('cities').identifier == 'cities'
+    # Error when opening a dataset that has not been downloaded and is not
+    # downloaded automatically.
+    with pytest.raises(err.NotDownloadedError):
+        store.load('countries')
+    with pytest.raises(err.NotDownloadedError):
+        store.load('countries', auto_download=False)
+    # The dataset can be opened if the auto_download flag is True.
+    assert store.load('countries', auto_download=True).identifier == 'countries'
 
 
 def test_local_store_init(tmpdir):
@@ -109,18 +124,11 @@ def test_local_store_repo_manager(mock_response, tmpdir):
     assert len(store.repository().find()) == 0
 
 
-def test_open_dataset(store):
-    """Test opening a downloaded dataset."""
-    store.download(key='cities')
-    assert store.open('cities').identifier == 'cities'
-    # Error when opening a dataset that has not been downloaded and is not
-    # downloaded automatically.
-    with pytest.raises(err.NotDownloadedError):
-        store.open('countries')
-    with pytest.raises(err.NotDownloadedError):
-        store.open('countries', auto_download=False)
-    # The dataset can be opened if the auto_download flag is True.
-    assert store.open('countries', auto_download=True).identifier == 'countries'
+def test_read_dataset(store):
+    """Test reading a dataset using the open() method."""
+    with store.open(key='countries', auto_download=True) as f:
+        doc = json.load(f)
+    assert len(doc) == 2
 
 
 def test_remove_dataset(store):

@@ -10,7 +10,7 @@ downloaded to the local data store.
 """
 
 from dateutil.parser import isoparse
-from typing import Dict, List, Optional, Set, Union
+from typing import Dict, IO, List, Optional, Set, Union
 
 import datetime
 import gzip
@@ -70,7 +70,7 @@ class DatasetHandle(DatasetDescriptor):
         else:
             raise err.InvalidFormatError("unknown format '{}'".format(parameters.format_type))
 
-    def data_frame(self, columns: Optional[List[str]] = None) -> pd.DataFrame:
+    def df(self, columns: Optional[List[str]] = None) -> pd.DataFrame:
         """Load dataset as a pandas data frame.
 
         This is a shortcut to load all (or a given selection of) columns in
@@ -193,3 +193,17 @@ class DatasetHandle(DatasetDescriptor):
         rhs = rhs if isinstance(rhs, list) else [rhs]
         consumer = MappingGenerator(split_at=len(lhs), ignore_equal=ignore_equal)
         return self.load(columns=lhs + rhs, consumer=consumer).to_mapping()
+
+    def open(self) -> IO:
+        """Open the downloaded data file for the dataset.
+
+        Returns
+        -------
+        file-like object
+        """
+        # Open the file depending on whether it is compressed or not. By now,
+        # we only support gzip compression.
+        if self.compression == 'gzip':
+            return gzip.open(self.datafile, 'rt')
+        else:
+            return open(self.datafile, 'rt')

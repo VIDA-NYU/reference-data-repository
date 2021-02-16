@@ -98,4 +98,4 @@ def show_dataset(basedir, db, index, raw, key):
     # Read the index of given.
     loader = DictLoader(util.read_index(index)) if index is not None else UrlLoader()
     store = RefStore(basedir=basedir, loader=loader, connect_url=db)
-    util.print_dataset(dataset=store.open(key), raw=raw)
+    util.print_dataset(dataset=store.load(key), raw=raw)
