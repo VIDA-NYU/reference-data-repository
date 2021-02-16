@@ -10,7 +10,7 @@ different types of data objects from a dataset in the data store.
 """
 
 from abc import ABCMeta, abstractmethod
-from typing import Any, Callable, Dict, List, Optional, Set
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
 
 import pandas as pd
 
@@ -163,7 +163,11 @@ class MappingGenerator(DataConsumer):
     mapping. If either side of the mapping involves multiple columns, a tuple
     of values for these columns is added to the mapping.
     """
-    def __init__(self, split_at: int, ignore_equal: Optional[bool] = True):
+    def __init__(
+        self, split_at: int,
+        transformer: Optional[Union[Callable, Tuple[Callable, Callable]]] = None,
+        ignore_equal: Optional[bool] = True
+    ):
         """Initialize the dictionary for the mapping and the column index that
         separates the values in the left-hand side of the mapping from those in
         the right-hand side.
@@ -177,11 +181,15 @@ class MappingGenerator(DataConsumer):
         split_at: int
             Columns index position at which rows are divided into left-hand side
             and right-hand side of the mapping.
+        transformer: callable or tuple of callable, default=None
+            Optional transformer function(s) that are evaluated on the values
+            for lhs and rhs columns before adding them to the mapping.
         ignore_equal: bool, default=True
             Exclude mappings from a value to itself from the created mapping.
         """
         self.mapping = dict()
         self.split_at = split_at
+        self.transformer = transformer
         self.ignore_equal = ignore_equal
 
     def consume(self, row: List):
@@ -201,8 +209,16 @@ class MappingGenerator(DataConsumer):
             List of column values for row in a dataset that is being read
             by a dataset loader.
         """
-        lhs = to_value(row[:self.split_at])
-        rhs = to_value(row[self.split_at:])
+        # Set transformers for lhs and rhs columns.
+        transform_lhs, transform_rhs = None, None
+        if self.transformer is not None:
+            if isinstance(self.transformer, tuple):
+                transform_lhs, transform_rhs = self.transformer
+            else:
+                transform_lhs = self.transformer
+                transform_rhs = self.transformer
+        lhs = to_value(row[:self.split_at], transformer=transform_lhs)
+        rhs = to_value(row[self.split_at:], transformer=transform_rhs)
         # Ignore the row id lhs and rhs are equal and ignore_equal flag is True.
         if lhs == rhs and self.ignore_equal:
             return

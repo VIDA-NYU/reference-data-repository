@@ -41,10 +41,17 @@ def test_load_mapping(store):
     mapping = store.load(key='cities', auto_download=True).mapping(lhs='city', rhs='state')
     assert len(mapping) == 7
     assert mapping['Troy'] == 'Alabama'
-    values = store.load(key='cities').mapping(lhs='city', rhs=['city'])
-    assert len(values) == 0
-    values = store.load(key='cities').mapping(lhs='city', rhs=['city'], ignore_equal=False)
-    assert len(values) == 7
+    dataset = store.load(key='cities')
+    mapping = dataset.mapping(lhs='city', rhs=['city'])
+    assert len(mapping) == 0
+    mapping = dataset.mapping(lhs='city', rhs=['city'], ignore_equal=False)
+    assert len(mapping) == 7
+    mapping = dataset.mapping(lhs='city', rhs='state', transformer=str.lower)
+    assert len(mapping) == 7
+    assert mapping['troy'] == 'alabama'
+    mapping = dataset.mapping(lhs='city', rhs='state', transformer=(str.lower, str.upper))
+    assert len(mapping) == 7
+    assert mapping['troy'] == 'ALABAMA'
 
 
 def test_read_dataset(store):

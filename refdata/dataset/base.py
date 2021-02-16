@@ -10,7 +10,7 @@ downloaded to the local data store.
 """
 
 from dateutil.parser import isoparse
-from typing import Callable, Dict, IO, List, Optional, Set, Union
+from typing import Callable, Dict, IO, List, Optional, Set, Tuple, Union
 
 import datetime
 import gzip
@@ -173,6 +173,7 @@ class DatasetHandle(DatasetDescriptor):
 
     def mapping(
         self, lhs: Union[str, List[str]], rhs: Union[str, List[str]],
+        transformer: Optional[Union[Callable, Tuple[Callable, Callable]]] = None,
         ignore_equal: Optional[bool] = True
     ) -> Dict:
         """Generate a mapping from values in dataset rows.
@@ -184,6 +185,12 @@ class DatasetHandle(DatasetDescriptor):
         This is a shortcut to load column values using the mapping generator
         as the data consumer.
 
+        It the optional transformer is given it is evaluated on column values
+        before adding them to the mapping. If a single callable is given, that
+        function is evalauated on the lhs and rhs columns. If a 2-tuple of
+        callables is given, the first function is evalauted on lhs columns and
+        the second function on rhs. columns.
+
         Parameters
         ----------
         lhs: string or list of string
@@ -192,6 +199,9 @@ class DatasetHandle(DatasetDescriptor):
         rhs: string or list of string
             Columns defining the source of values for the right-hand side of the
             mapping.
+        transformer: callable or tuple of callable, default=None
+            Optional transformer function(s) that are evaluated on the values
+            for lhs and rhs columns before adding them to the mapping.
         ignore_equal: bool, default=True
             Exclude mappings from a value to itself from the created mapping.
 
@@ -202,7 +212,11 @@ class DatasetHandle(DatasetDescriptor):
         # Ensure that lhs and rhs are lists.
         lhs = lhs if isinstance(lhs, list) else [lhs]
         rhs = rhs if isinstance(rhs, list) else [rhs]
-        consumer = MappingGenerator(split_at=len(lhs), ignore_equal=ignore_equal)
+        consumer = MappingGenerator(
+            split_at=len(lhs),
+            transformer=transformer,
+            ignore_equal=ignore_equal
+        )
         return self.load(columns=lhs + rhs, consumer=consumer).to_mapping()
 
     def open(self) -> IO:
