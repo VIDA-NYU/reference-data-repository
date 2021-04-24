@@ -314,7 +314,7 @@ class LocalStore:
         refdata.repo.RepositoryManager
         """
         # Create an instance of the default repository manager if none was
-        # given when the store was created and this is the firat access to
+        # given when the store was created and this is the first access to
         # the manager.
         if self.repo is None:
             self.repo = RepositoryManager(doc=self.loader.load())

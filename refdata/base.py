@@ -319,3 +319,13 @@ class FormatDescriptor(dict):
         bool
         """
         return self.format_type == 'json'
+
+    @property
+    def is_sqlite(self) -> bool:
+        """True if the dataset is of type 'sqlite'.
+
+        Returns
+        -------
+        bool
+        """
+        return self.format_type == 'sqlite'
