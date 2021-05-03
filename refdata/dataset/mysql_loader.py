@@ -21,17 +21,20 @@ class MySQLLoader(DatasetLoader):
     """Dataset loader for MySQL files.
     """
     def __init__(self, parameters: FormatDescriptor):
-        """Initialize the format settings and the order of columns in the
-        data file.
+        """Initialize the sql queries to run on the database. If both the query and table parameters are present,
+        it will use the query else it will deduce a generic query from the table name.
 
         Parameters
         ----------
         parameters: refdata.base.FormatDescriptor
             Dataset format specification.
         """
+        self.query = parameters.get('query')
         self.table = parameters.get('table')
-        if self.table is None:
+        if self.query is None and self.table is None:
             InvalidFormatError("Missing schema (table) name in format type '{}'".format(parameters.format_type))
+        elif self.query is None:
+            self.query = 'SELECT * FROM {}'.format(self.table)
 
     def read(self, file: str, columns: List[str], consumer: DataConsumer) -> DataConsumer:
         """Read dataset rows from a given file handle.
@@ -60,7 +63,7 @@ class MySQLLoader(DatasetLoader):
         cur = con.cursor()
 
         # The result of a "cursor.execute" can be iterated over by row
-        for row in cur.execute('SELECT * FROM {}'.format(self.table)):
+        for row in cur.execute(self.query):
             consumer.consume(row)
 
         # Be sure to close the connection
