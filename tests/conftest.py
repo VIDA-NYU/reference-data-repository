@@ -14,11 +14,9 @@ import requests
 
 import refdata.config as config
 
-
 """Path to local directory with test files."""
 DIR = os.path.dirname(os.path.realpath(__file__))
 DATA_DIR = os.path.join(DIR, '.files')
-
 
 INDEX_JSON = {
     'datasets': [
@@ -80,6 +78,7 @@ class MockResponse:
     Adopted from the online documentation at:
     https://docs.pytest.org/en/stable/monkeypatch.html
     """
+
     def __init__(self, url):
         """Keep track of the request Url to be able to load different test
         data files.

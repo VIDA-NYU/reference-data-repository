@@ -23,6 +23,6 @@ def test_get_dataset(mock_response):
 def test_read_linked_index(mock_response):
     """Test reading a federated repository index."""
     repo = RepositoryManager(doc=UrlLoader(url='multi-index.json').load())
-    assert len(repo.find()) == 3
+    assert len(repo.find()) == 4
     assert repo.get('us_cities') is not None
     assert repo.get('cities') is not None

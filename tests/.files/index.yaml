@@ -54,3 +54,56 @@ datasets:
     name: Sub-Region
   url: http://countries.json
   webpage: https://restcountries.eu/
+- id: admins
+  name: Geo Administrative Levels
+  url: https://osf.io/y3q8e/download
+  checksum: 4a1fd5f3891eaf5deffa3c69c8c18fc3b254847be327ec6961b4a13a180ae2ef
+  webpage: https://osf.io/y3q8e/
+  schema:
+    - id: id
+      name: id
+      description: Primary Key
+      dtype: number
+    - id: name
+      name: name
+      dtype: text
+    - id: latitude
+      name: latitude
+      dtype: number
+    - id: longitude
+      name: longitude
+      dtype: number
+    - id: shape
+      name: shape
+      dtype: text
+    - id: bounds
+      name: bounds
+      dtype: text
+    - id: level
+      name: level
+      dtype: number
+    - id: continent
+      name: continent
+      dtype: text
+    - id: country
+      name: country
+      dtype: text
+    - id: admin1
+      name: admin1
+      dtype: text
+    - id: admin2
+      name: admin2
+      dtype: text
+    - id: admin3
+      name: admin3
+      dtype: text
+    - id: admin4
+      name: admin4
+      dtype: text
+    - id: admin5
+      name: admin5
+      dtype: text
+  format:
+    type: sqlite
+    parameters:
+      table: admins
