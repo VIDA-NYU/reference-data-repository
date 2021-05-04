@@ -5,7 +5,7 @@
 # refdata is free software; you can redistribute it and/or modify it under the
 # terms of the MIT License; see LICENSE file for more details.
 
-"""Loader implementation for datasets that are given in MySQL format."""
+"""Loader implementation for datasets that are given in SQLite format."""
 
 from typing import List
 
@@ -17,8 +17,8 @@ from refdata.dataset.loader import DatasetLoader
 from refdata.error import InvalidFormatError
 
 
-class MySQLLoader(DatasetLoader):
-    """Dataset loader for MySQL files.
+class SQLiteLoader(DatasetLoader):
+    """Dataset loader for SQLite files.
     """
     def __init__(self, parameters: FormatDescriptor):
         """Initialize the sql queries to run on the database. If both the query and table parameters are present,
@@ -39,7 +39,7 @@ class MySQLLoader(DatasetLoader):
     def read(self, file: str, columns: List[str], consumer: DataConsumer) -> DataConsumer:
         """Read dataset rows from a given file handle.
 
-        Assumes that the file contains a path str. This method iterates over the mysqllite
+        Assumes that the file contains a path str. This method iterates over the sqlite
         cursor and passes each row to the consumer
 
         Parameters

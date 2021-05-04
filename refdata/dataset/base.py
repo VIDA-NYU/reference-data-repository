@@ -21,7 +21,7 @@ from refdata.base import DatasetDescriptor
 from refdata.dataset.consumer import DataConsumer, DataFrameGenerator, DistinctSetGenerator, MappingGenerator
 from refdata.dataset.csv_loader import CSVLoader
 from refdata.dataset.json_loader import JsonLoader
-from refdata.dataset.mysql_loader import MySQLLoader
+from refdata.dataset.sqlite_loader import SQLiteLoader
 
 import refdata.error as err
 
@@ -69,7 +69,7 @@ class DatasetHandle(DatasetDescriptor):
         elif parameters.is_json:
             self.loader = JsonLoader(parameters)
         elif parameters.is_sqlite:
-            self.loader = MySQLLoader(parameters)
+            self.loader = SQLiteLoader(parameters)
         else:
             raise err.InvalidFormatError("unknown format '{}'".format(parameters.format_type))
 
@@ -161,7 +161,7 @@ class DatasetHandle(DatasetDescriptor):
         -------
         refdata.dataset.consumer.DataConsumer
         """
-        # If it is a mysql db, do not open the file
+        # If it is a SQLite db, do not open the file
         if self.format.is_sqlite:
             return self.loader.read(self.datafile, columns=columns, consumer=consumer)
         # Open the file depending on whether it is compressed or not. By now,

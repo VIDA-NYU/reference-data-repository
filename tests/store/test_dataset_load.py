@@ -63,7 +63,7 @@ def test_read_dataset(store):
     assert linecount == 8
 
 
-def test_mysql_load(store):
+def test_sqlite_load(store):
     """Test geo data is downloaded and read correctly"""
 
     dataset = store.load(key='admins', auto_download=True)
