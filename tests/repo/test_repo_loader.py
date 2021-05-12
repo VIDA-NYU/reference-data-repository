@@ -38,7 +38,7 @@ def test_dictionary_loader():
 def test_file_loader(filename, ftype):
     """Test loading the repository index from files in different formats."""
     doc = FileLoader(filename=filename, ftype=ftype).load()
-    assert len(doc['datasets']) == 2
+    assert len(doc['datasets']) == 3
 
 
 @pytest.mark.parametrize(
@@ -70,4 +70,4 @@ def test_invalid_file_format():
 def test_url_loader(url, ftype, mock_response):
     """Test loading the repository index from a Url in different formats."""
     doc = UrlLoader(url=url, ftype=ftype).load()
-    assert len(doc['datasets']) == 2
+    assert len(doc['datasets']) == 3

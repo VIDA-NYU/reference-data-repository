@@ -61,3 +61,15 @@ def test_read_dataset(store):
         for line in f:
             linecount += 1
     assert linecount == 8
+
+
+def test_sqlite_load(store):
+    """Test geo data is downloaded and read correctly"""
+
+    dataset = store.load(key='admins', auto_download=True)
+
+    df = dataset.df()
+    assert df.shape == (1000, 14)
+
+    dic = dataset.to_dict()
+    assert dic.get('format').get('type') == 'sqlite'
