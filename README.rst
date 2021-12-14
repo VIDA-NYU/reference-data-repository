@@ -3,10 +3,10 @@ Reference Data Repository
 =========================
 
 .. image:: https://img.shields.io/pypi/pyversions/refdata.svg
-    :target: https://pypi.org/pypi/refdata
+    :target: https://pypi.org/project/refdata/
 
 .. image:: https://badge.fury.io/py/refdata.svg
-    :target: https://badge.fury.io/py/refdata
+    :target: https://pypi.org/project/refdata/
 
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
     :target: https://github.com/VIDA-NYU/reference-data-repository/blob/master/LICENSE
