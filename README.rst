@@ -73,12 +73,11 @@ Users maintain copies of the datasets for local access. By default, datasets are
 Getting Started
 ===============
 
-Install the package using `pip` from the GitHub repository:
+Install the package using `pip`:
 
 .. code-block:: bash
 
-    pip install git+git://github.com:VIDA-NYU/reference-data-repository.git
-
+    pip install refdata
 
 This repository contains an `example notebook <https://github.com/VIDA-NYU/reference-data-repository/blob/master/docs/examples/Usage%20Example.ipynb>`_ that demonstrates the basic features of the package.
 
